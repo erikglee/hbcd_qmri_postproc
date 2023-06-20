@@ -84,5 +84,5 @@ for temp_participant in participants:
     #Iterate through sessions
     for temp_session in sessions:
 
-        qmri_postproc = qmri_posproc.calc_symri_stats(bids_dir, bibsnet_deriv_dir, symri_deriv_dir, output_dir, temp_participant, temp_session)
+        qmri_postproc.calc_symri_stats(bids_dir, bibsnet_deriv_dir, symri_deriv_dir, output_dir, temp_participant, temp_session)
         print('Finished with: subject {}, session {}'.format(temp_participant, temp_session))
