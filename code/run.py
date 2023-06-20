@@ -1,8 +1,7 @@
 #!/usr/bin/python3
-
 import numpy as np
 import matplotlib.pyplot as plt
-import qmri_posproc
+import qmri_postproc
 import os, glob
 import argparse
 

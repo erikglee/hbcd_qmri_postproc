@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import os, glob
 import nibabel
 import matplotlib.pyplot as plt
