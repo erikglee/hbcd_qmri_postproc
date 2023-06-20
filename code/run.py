@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 import numpy as np
 import matplotlib.pyplot as plt
 import qmri_postproc
