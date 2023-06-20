@@ -1,0 +1,445 @@
+#!/usr/bin/python3
+
+import os, glob
+import nibabel
+import matplotlib.pyplot as plt
+import numpy as np
+import ants
+import pandas as pd
+import nibabel as nib
+import json
+
+def load_color_lut_df():
+    '''Load a copy of the FreeSurfer Color Look Up Table
+
+    Returns
+    -------
+    df : pandas.DataFrame
+        A pandas dataframe with the FreeSurfer Color Look Up Table
+
+    '''
+    freesurfer_color_lut = '/hbcd_code/FreeSurferColorLUT.txt'
+    with open(freesurfer_color_lut, 'r') as f:
+        lines = f.readlines()
+    color_lut_dict = {'Region_Number': [], 'Region_Name': []}
+    for temp_line in lines[4:-1]:
+        if temp_line[0] == '#' or temp_line[0] == ' ' or temp_line[0] == '\n':
+            continue
+        color_lut_dict['Region_Number'].append(int(temp_line.split()[0]))
+        color_lut_dict['Region_Name'].append(temp_line.split()[1])
+    df = pd.DataFrame(color_lut_dict, index = color_lut_dict['Region_Number'])
+    
+    return df
+
+
+def grab_anatomical_reference_metadata(anatomical_reference_path):
+    '''Given a path to a nifti image, grab metadata from the corresponding json sidecar
+    
+    Parameters
+    ----------
+    anatomical_reference_path : str
+        path to a nifti image that has a corresponding json sidecar
+
+    Returns
+    -------
+    metadata_to_save : dict
+        dictionary with metadata fields of interest
+
+    '''
+    
+    #anatomical_reference_path = path to a nifti image that has a corresponding json sidecar
+    
+    json_path = anatomical_reference_path.replace('.nii' + anatomical_reference_path.split('.nii')[-1], '.json')
+    with open(json_path, 'r') as f:
+        contents = json.load(f)
+        
+    metadata_fields_to_grab = ['Manufacturer', 'ManufacturersModelName', 'DeviceSerialNumber' ,'PatientName', 'PatientBirthDate', 'AcquisitionDateTime']
+    metadata_to_save = {}
+    for temp_field in metadata_fields_to_grab:
+        try:
+            metadata_to_save[temp_field] = contents[temp_field]
+        except:
+            metadata_to_save[temp_field] = None
+            
+    if ((type(metadata_to_save['PatientBirthDate']) is type(None)) or (type(metadata_to_save['AcquisitionDateTime']) is type(None))):
+        metadata_to_save['RoughAgeDays'] = None
+    else:
+        tday = contents['AcquisitionDateTime'].split('T')[0]
+        bday = contents['PatientBirthDate']
+        metadata_to_save['RoughAgeDays'] = (np.datetime64(tday) - np.datetime64(bday))/np.timedelta64(1, 'D')
+        
+    return metadata_to_save
+
+def calc_synth_t1w_t2w(t1map_path, t2map_path, pdmap_path, output_folder, subject_name, session_name):
+    
+    t1_tr = 2.4*1000
+    t1_te = 0.00224*1000
+
+    t2_tr = 2.5*1000
+    t2_te = 0.323*1000 
+
+    temp_t1_img = nib.load(t1map_path)
+    temp_t1_data = temp_t1_img.get_fdata()
+    temp_t2_data = nib.load(t2map_path).get_fdata()
+    temp_pd_data = nib.load(pdmap_path).get_fdata()
+    
+    t1w = temp_pd_data*(1.0 - np.exp(-t1_tr/temp_t1_data))*np.exp(-t1_te/temp_t2_data)
+    t2w = temp_pd_data*(1.0 - np.exp(-t2_tr/temp_t1_data))*np.exp(-t2_te/temp_t2_data)
+            
+    if os.path.exists(output_folder) == False:
+        os.makedirs(output_folder)
+        
+    t1w_nifti_img = nib.nifti1.Nifti1Image(t1w, affine = temp_t1_img.affine, header = temp_t1_img.header)
+    t2w_nifti_img = nib.nifti1.Nifti1Image(t2w, affine = temp_t1_img.affine, header = temp_t1_img.header)
+    
+    t1w_name = os.path.join(output_folder, '{}_{}_space-QALAS_desc-synthetic_T1w.nii.gz'.format(subject_name, session_name))
+    t2w_name = os.path.join(output_folder, '{}_{}_space-QALAS_desc-synthetic_T2w.nii.gz'.format(subject_name, session_name))
+
+    nib.save(t1w_nifti_img, t1w_name)
+    nib.save(t2w_nifti_img, t2w_name)
+    
+    return t1w_name, t2w_name
+    
+    
+def make_outline_overlay_underlay_plot_ribbon(path_to_underlay, path_to_overlay, ap_buffer_size = 3, crop_buffer=20, num_total_images=16, dpi=400,
+                                      underlay_cmap='Greys', linewidths=.1, output_path=None, close_plot=True):
+
+    """Function that makes contour plot with nifti mask and underlay.
+
+
+    Takes paths to two nifti files, the overlay nifti file will
+    be thresholded, and a contour created out of the resulting mask
+    and then will be projected over the underlay.
+
+    Parameters
+    ----------
+    path_to_underlay : str
+        path to underlay file
+    path_to_overlay : str
+        path to overlay that will be masked and used
+        to create contour
+    ap_buffer_size : int
+        ap buffer
+    crob_buffer : int
+        make this bigger to reduce cropping
+    num_total_images : int
+        number of images in the panel, must
+        have a sqrt that is an integer so
+        panel can be square
+    underlay_cmap : str
+        the matplotlib colormap to use for the
+        underlay
+    linewidths : float
+        the width of contour line
+    output_path : str or None
+        optional path for file to be saved
+        (do not include extension)
+
+    """
+
+
+
+    underlay_path = path_to_underlay
+    underlay_obj = nib.load(underlay_path)
+    underlay_data = underlay_obj.get_fdata()
+    overlay_img = nib.load(path_to_overlay)
+    overlay_data = overlay_img.get_fdata()
+    
+
+    orig_overlay = overlay_data
+    overlay_data = np.zeros(orig_overlay.shape)
+    #overlay_data[orig_overlay == 2] = 1
+    #overlay_data[orig_overlay == 41] = 1
+    #overlay_data[orig_overlay == 3] = 2
+    #overlay_data[orig_overlay == 42] = 2
+    overlay_data[orig_overlay > 0.5] = 1
+
+    masked_vals = underlay_data[overlay_data > 0.5]
+    hist_results = np.histogram(masked_vals, bins = 100)
+    modal_value = hist_results[1][np.argmax(hist_results[0])]
+    vmin = modal_value*.3
+    vmax = modal_value*1.7
+
+    overlay_ap_max = np.max(overlay_data,axis=(0,1))
+    non_zero_locations = np.where(overlay_ap_max > 0.5)[0]
+    min_lim = np.min(non_zero_locations) - ap_buffer_size
+    if min_lim < 0:
+        min_lim = 0
+    max_lim = np.max(non_zero_locations) + ap_buffer_size
+    if max_lim >= overlay_data.shape[2]:
+        max_lim = overlay_data.shape[2] - 1
+    inds_to_capture = np.linspace(min_lim,max_lim,num_total_images,dtype=int)
+
+    overlay_max_0 = np.max(overlay_data,axis=(1,2))
+    overlay_max_1 = np.max(overlay_data,axis=(0,2))
+    overlay_locations_0 = np.where(overlay_max_0 > 0.5)[0]
+    overlay_locations_1 = np.where(overlay_max_1 > 0.5)[0]
+    min0 = np.min(overlay_locations_0) - crop_buffer
+    if min0 < 0:
+        min0 = 0
+    max0 = np.max(overlay_locations_0) + crop_buffer
+    if max0 >= overlay_data.shape[0]:
+        max0 = overlay_data.shape[0] - 1
+    min1 = np.min(overlay_locations_1) - crop_buffer
+    if min1 < 0:
+        min1 = 0
+    max1 = np.max(overlay_locations_1) + crop_buffer
+    if max1 >= overlay_data.shape[1]:
+        max1 = overlay_data.shape[1] - 1
+
+
+    num_imgs_per_dim = int(np.sqrt(num_total_images))
+    counting_index = 0
+    for i in range(num_imgs_per_dim):
+
+        temp_underlay_row = underlay_data[min0:max0,min1:max1,inds_to_capture[counting_index]]
+        temp_overlay_row = overlay_data[min0:max0,min1:max1,inds_to_capture[counting_index]]
+        counting_index += 1
+        for j in range(1,num_imgs_per_dim):
+            temp_underlay_row = np.vstack((temp_underlay_row,underlay_data[min0:max0,min1:max1,inds_to_capture[counting_index]]))
+            temp_overlay_row = np.vstack((temp_overlay_row,overlay_data[min0:max0,min1:max1,inds_to_capture[counting_index]]))
+            counting_index +=1
+        if i == 0:
+            temp_underlay_full = temp_underlay_row
+            temp_overlay_full = temp_overlay_row
+        else:
+            temp_underlay_full = np.hstack((temp_underlay_full,temp_underlay_row))
+            temp_overlay_full = np.hstack((temp_overlay_full,temp_overlay_row))
+
+    underlay_panel = np.fliplr(np.rot90(temp_underlay_full,1))
+    overlay_panel = np.fliplr(np.rot90(temp_overlay_full,1))
+
+    plt.figure(dpi=dpi)
+    im = plt.contour(overlay_panel, linewidths=linewidths, colors='m')
+    
+    #im = plt.imshow(underlay_panel, cmap=underlay_cmap, vmax = vmax, vmin = vmin)
+    im = plt.imshow(underlay_panel, cmap='gist_gray', vmax = vmax, vmin = vmin)
+    plt.xticks([])
+    plt.yticks([])
+    plt.axis('off')
+
+    if type(output_path) != type(None):
+        plt.savefig(output_path, dpi=dpi, bbox_inches='tight', pad_inches = 0)
+
+    if close_plot == True:
+        plt.close()
+
+    return
+
+
+def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_directory, subject_name, session_name):
+    '''Function to generate items of interest based on quantitative MRI maps
+    
+    
+    Parameters
+    ----------
+    bids_directory : str
+        Path to the study-level BIDS directory
+    bibsnet_directory : str
+        Path to the study-level BIBSNET directory
+    symri_directory : str
+        Path to the study-level SYMRI directory
+    output_directory : str
+        Path to the study-level directory where output should be saved
+    subject_name : str
+        Name of the subject to be processed (i.e. sub-01)
+    session_name : str
+        Name of the session to be processed (i.e. ses-01). Since these
+        scripts are designed for HBCD which has sessions in the BIDS structure,
+        this is required.
+    
+    
+    '''
+    
+    ##########################################################################################
+    ##########################################################################################
+    ##########Identify the images that should be used in processing###########################
+    ##########################################################################################
+    t1w_segs = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T1w_desc-aseg_dseg.nii.gz'))
+    t2w_segs = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T2w_desc-aseg_dseg.nii.gz'))
+    
+    #If possible, use T2w image instead of T1w
+    if len(t2w_segs):
+        anatomical_reference_modality = 'T2w'
+        bibsnet_seg_path = t2w_segs[0]
+        bibsnet_masks = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T2w_desc-brain_mask.nii.gz'))
+        if len(bibsnet_masks) == 0:
+            raise ValueError('Error: A T2w BIBSNET segmentation was found without a corresponding mask.')
+        else:
+            bibsnet_mask_path = bibsnet_masks[0]
+        possible_anatomical_references = glob.glob(os.path.join(bids_directory, subject_name, session_name, 'anat', '*T2w.nii.gz'))
+        if len(possible_anatomical_references) != 1:
+            raise ValueError('Error: If a T2w segmentation is to be used for processing, only 1 T2w reference found in the subjects anat directory must be present but {} were found'.format(len(possible_anatomical_references)))
+        else:
+            anatomical_reference_path = possible_anatomical_references[0]
+    #Use T1w image if T2w seg not found
+    elif len(t1w_segs):
+        anatomical_reference_modality = 'T1w'
+        bibsnet_seg_path = t1w_segs[0]
+        bibsnet_masks = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T1w_desc-brain_mask.nii.gz'))
+        if len(bibsnet_masks) == 0:
+            raise ValueError('Error: A T1w BIBSNET segmentation was found without a corresponding mask.')
+        else:
+            bibsnet_mask_path = bibsnet_masks[0]
+        possible_anatomical_references = glob.glob(os.path.join(bids_directory, subject_name, session_name, 'anat', '*T1w.nii.gz'))
+        if len(possible_anatomical_references) != 1:
+            raise ValueError('Error: If a T1w segmentation is to be used for processing, only 1 T1w reference found in the subjects anat directory must be present but {} were found'.format(len(possible_anatomical_references)))
+        else:
+            anatomical_reference_path = possible_anatomical_references[0]
+    else:
+        raise ValueError('No segmentation found for {} and {} within {}'.format(subject_name, session_name, bibsnet_directory))
+        
+        
+    #Find the SyMRI Maps
+    symri_t1 = glob.glob(os.path.join(symri_directory, subject_name, 'ses*', 'anat', '*T1map.nii.gz'))
+    symri_t2 = glob.glob(os.path.join(symri_directory, subject_name, 'ses*', 'anat', '*T2map.nii.gz'))
+    symri_pd = glob.glob(os.path.join(symri_directory, subject_name, 'ses*', 'anat', '*PDmap.nii.gz')) 
+    if len(symri_t1)*len(symri_t2)*len(symri_pd) != 1:
+        raise ValueError('Error: Expected to have exactly one T1map, T2map, and PDmap, but found the following images {}.'.format(symri_t1 + symri_t2 + symri_pd))
+    else:
+        symri_t1_path = symri_t1[0]
+        symri_t2_path = symri_t2[0]
+        symri_pd_path = symri_pd[0]
+        
+    #########################################################################################################
+    #########################################################################################################
+    #########################################################################################################
+    
+    #Define the out dir
+    anat_out_dir = os.path.join(output_directory, subject_name, session_name, 'anat')
+    
+    #Create synthetic T1w and T2w images from the QALAS scans
+    symri_t1w_path, symri_t2w_path = calc_synth_t1w_t2w(symri_t1_path, symri_t2_path, symri_pd_path, os.path.join(anat_out_dir, 'qalas_derived_weighted_images'), subject_name, session_name)
+    
+    #Load some of the images that will be used
+    anatomical_reference = ants.image_read(anatomical_reference_path)
+    segmentation_arr = np.array(ants.image_read(bibsnet_seg_path)[:])
+    t1map = ants.image_read(symri_t1_path)
+    t2map = ants.image_read(symri_t2_path)
+    pdmap = ants.image_read(symri_pd_path)
+    
+    #Register to the anatomical reference space using either a T1w/T2w workflow
+    anatomical_reference = ants.image_read(anatomical_reference_path)
+    bibsnet_mask = ants.image_read(bibsnet_mask_path)
+    dilated_mask = ants.utils.morphology(bibsnet_mask, 'dilate', 15)
+    if anatomical_reference_modality == 'T1w':
+        symri_for_reg = ants.image_read(symri_t1w_path)
+        reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, outprefix='', mask=dilated_mask, interpolator = 'nearestNeighbor')
+    elif anatomical_reference_modality == 'T2w':
+        symri_for_reg = ants.image_read(symri_t2w_path)
+        reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, outprefix='', mask=dilated_mask, interpolator = 'nearestNeighbor')
+
+    #Apply the transform calculated above to the t1map, t2map, and pdmap images
+    Interpolation_Scheme = 'bSpline'
+    t1map_transformed = ants.apply_transforms(anatomical_reference, t1map, reg['fwdtransforms'], interpolator = Interpolation_Scheme)
+    t2map_transformed = ants.apply_transforms(anatomical_reference, t2map, reg['fwdtransforms'], interpolator = Interpolation_Scheme)
+    pdmap_transformed = ants.apply_transforms(anatomical_reference, pdmap, reg['fwdtransforms'], interpolator = Interpolation_Scheme)
+    
+    #Load the maps and segmentation as arrays to extract ROI values
+    transformed_maps_array_dict = {'T1' : np.array(t1map_transformed[:]),
+                                   'T2' : np.array(t2map_transformed[:]),
+                                   'PD' : np.array(pdmap_transformed[:])}
+    segmentation_arr = np.array(ants.image_read(bibsnet_seg_path)[:])
+    mask_arr = np.array(ants.image_read(bibsnet_mask_path)[:])
+    anatomical_reference_arr = np.array(anatomical_reference[:])
+
+    #Load the freesurfer color lut
+    color_lut_df = load_color_lut_df()
+    
+    #Initialize a dictionary to store all the ROI values/names
+    roi_params_dict = {'Region_Name' : [],
+                       'T1_Mean': [],
+                       'T2_Mean': [],
+                       'PD_Mean': [],
+                       'T1_Median': [],
+                       'T2_Median': [],
+                       'PD_Median': [],
+                       'T1_Min' : [],
+                       'T2_Min' : [],
+                       'PD_Min' : [],
+                       'T1_Max' : [],
+                       'T2_Max' : [],
+                       'PD_Max' : [],
+                       'T1_Std' : [],
+                       'T2_Std' : [],
+                       'PD_Std' : []}
+    
+    #Find unique segmentation values
+    unique_segmentation_vals = np.unique(segmentation_arr)
+    for seg_val in unique_segmentation_vals:
+        if seg_val != 0: #Exclude 0 from analyses
+            temp_df = color_lut_df[color_lut_df['Region_Number'] == seg_val]
+            if temp_df.shape[0] == 0:
+                raise ValueError('Error: Segmentation had value [{}] but there was no region with this value found in FreeSurfer Color LUT'.format(seg_val))
+            else:
+                temp_region_name = temp_df['Region_Name'].values[0]
+                roi_params_dict['Region_Name'].append(temp_region_name)
+                voxel_inds = segmentation_arr == seg_val
+                for temp_image_type in transformed_maps_array_dict.keys():
+                    temp_vals = transformed_maps_array_dict[temp_image_type][voxel_inds]
+                    roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
+                    roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
+                    roi_params_dict[temp_image_type + '_Min'].append(np.min(temp_vals))
+                    roi_params_dict[temp_image_type + '_Max'].append(np.max(temp_vals))
+                    roi_params_dict[temp_image_type + '_Std'].append(np.std(temp_vals))
+
+    if os.path.exists(anat_out_dir) == False:
+        os.makedirs(anat_out_dir)
+    output_csv_path = os.path.join(anat_out_dir, '{}_{}_desc-ParametricROIValues.csv'.format(subject_name, session_name))
+    params_df = pd.DataFrame(roi_params_dict)
+    params_df.to_csv(output_csv_path, index=False) 
+    
+    mask_inds = mask_arr > 0.5
+    mask_corr_coef = np.corrcoef(reg['warpedmovout'][mask_inds], anatomical_reference_arr[mask_inds])[0,1]
+
+
+    roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated from QALAS scans using the SyMRI pipeline, registered to an anatomical reference image, and then summarized within the different regions of interest represented in the segmentation file.',
+                           'Original_SyMRI_Images' : [symri_t1_path, symri_t2_path, symri_pd_path],
+                           'Segmentation_Path' : [bibsnet_seg_path],
+                           'Mask_Path' : [bibsnet_mask_path],
+                           'Anatomical_Reference_Path' : [anatomical_reference_path],
+                           'Anatomical_Reference_Modality' : anatomical_reference_modality,
+                           'Resampling_Scheme' : Interpolation_Scheme,
+                           'Voxel_Correlation_Within_Mask' : mask_corr_coef,
+                           'Voxel_Correlation_Within_Mask_Description' : 'This is the correlation of voxel intensities between the anatomical reference image and the synthetic weighted image from symri following registration, using only voxels defined in the brain mask.'}
+    roi_params_metadata.update(grab_anatomical_reference_metadata(anatomical_reference_path))
+
+    roi_params_metadata_json = json.dumps(roi_params_metadata, indent = 5)
+    output_json_path = os.path.join(anat_out_dir, '{}_{}_desc-ParametricROIValues.json'.format(subject_name, session_name))
+    with open(output_json_path, 'w') as f:
+        f.write(roi_params_metadata_json)
+        
+    #Save new versions of PD/T1/T2map that have been aligned to the anatomical reference space
+    registered_t1map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T1map.nii.gz'.format(subject_name, session_name, anatomical_reference_modality))
+    ants.image_write(t1map_transformed, registered_t1map_path)
+    registered_t2map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T2map.nii.gz'.format(subject_name, session_name, anatomical_reference_modality))
+    ants.image_write(t2map_transformed, registered_t2map_path)
+    registered_pdmap_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_PDmap.nii.gz'.format(subject_name, session_name, anatomical_reference_modality))
+    ants.image_write(pdmap_transformed, registered_pdmap_path)
+    
+    #Add json metadata for the PD/T1/T2map images that have been registered to the anatomical template
+    resampled_images_metadata = {'Workflow_Description' : 'The values generated in the accompanying images are the quantitative maps derived from QALAS scans that are then registered and resampled to a high-resolution native image for the subject (see Anatomical_Reference_Path for the image that was registered to).',
+                           'Original_SyMRI_Images' : [symri_t1_path, symri_t2_path, symri_pd_path],
+                           'Segmentation_Path' : [bibsnet_seg_path],
+                           'Mask_Path' : [bibsnet_mask_path],
+                           'Anatomical_Reference_Path' : [anatomical_reference_path],
+                           'Anatomical_Reference_Modality' : anatomical_reference_modality,
+                           'Resampling_Scheme' : Interpolation_Scheme}
+    resampled_images_metadata.update(grab_anatomical_reference_metadata(anatomical_reference_path))
+    resampled_images_metadata_json = json.dumps(resampled_images_metadata, indent = 5)
+    output_json_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T1map.json'.format(subject_name, session_name, anatomical_reference_modality))
+    with open(output_json_path, 'w') as f:
+        f.write(resampled_images_metadata_json) 
+    output_json_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T2map.json'.format(subject_name, session_name, anatomical_reference_modality))
+    with open(output_json_path, 'w') as f:
+        f.write(resampled_images_metadata_json) 
+    output_json_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_PDmap.json'.format(subject_name, session_name, anatomical_reference_modality))
+    with open(output_json_path, 'w') as f:
+        f.write(resampled_images_metadata_json) 
+    
+    #Make a figure with the segmentation as overlay and t2map as underlay to assess registration quality
+    alignment_figure_output = os.path.join(anat_out_dir, '{}_{}_desc-RegistrationQCAid.png'.format(subject_name, session_name))
+    make_outline_overlay_underlay_plot_ribbon(registered_t2map_path, bibsnet_seg_path, ap_buffer_size = 3, crop_buffer=20, num_total_images=9, dpi=400,
+                                       underlay_cmap='Greys', linewidths=.1, output_path=alignment_figure_output, close_plot=True)
+
+    return
