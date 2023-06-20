@@ -47,7 +47,7 @@ RUN python3 -m pip install matplotlib==3.5.1
 #Grab code + colorlut
 RUN mkdir /code
 COPY ./code/run.py /code
-COPY ./code/qmri_posproc.py /code 
+COPY ./code/qmri_postproc.py /code 
 COPY ./code/FreeSurferColorLUT.txt /code
 
 #Set permissions
