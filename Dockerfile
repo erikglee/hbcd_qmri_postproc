@@ -1,23 +1,60 @@
-#The base image is FreeSurfer's synthstrip package
-FROM freesurfer/synthstrip:1.4
+#The base image is the AMD64 version of centos:centos7.9.2009, which
+#should correspond to the OS at MSI
+#FROM amd64/centos:7.9.2009
+#FROM ubuntu:latest
+FROM python:3.9.16-slim-bullseye
 
-#Install relevant python packages
+# Prepare environment
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+                    apt-utils \
+                    autoconf \
+                    build-essential \
+                    bzip2 \
+                    ca-certificates \
+                    curl \
+                    gcc \
+                    git \
+                    gnupg \
+                    libtool \
+                    lsb-release \
+                    pkg-config \
+                    unzip \
+                    wget \
+                    xvfb \
+                    default-jre \
+                    zlib1g \
+                    pip && \
+    apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/
+
+#Install relavent python packages
+#RUN apt update 
+#RUN apt install software-properties-common -y
+#RUN add-apt-repository ppa:deadsnakes/ppa -y
+#RUN apt update 
+#ENV DEBIAN_FRONTEND=noninteractive
+#RUN apt install python3.9 -y
+#RUN apt-get install -y python3
+#RUN apt-get install -y python3-dev
+#RUN python3 -m pip install python-dev-tools
+RUN python3 -m pip install antspyx==0.3.8
+RUN python3 -m pip install numpy==1.19.2
+RUN python3 -m pip install scipy==1.8.0
 RUN python3 -m pip install nibabel==3.2.2
-RUN python3 -m pip install dipy==1.6.0
-RUN python3 -m pip install matplotlib==3.3.4
+RUN python3 -m pip install matplotlib==3.5.1
 
-#Make code and data directory
-RUN mkdir /hbcd_code && mkdir /image_templates
 
-#Copy over images
-ADD image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_T1w.nii.gz /image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_T1w.nii.gz
-ADD image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_T2w.nii.gz /image_templates/tpl-MNIInfant_cohort-1_res-1_mask-applied_T2w.nii.gz
+#Grab code + colorlut
+RUN mkdir /code
+COPY ./code/run.py /code
+COPY ./code/qmri_posproc.py /code 
+COPY ./code/FreeSurferColorLUT.txt /code
 
-#Copy code, assign permissions
-ADD run.py /hbcd_code/run.py
-RUN chmod 555 -R /hbcd_code
-ENV PATH="${PATH}:/hbcd_code"
-RUN pipeline_name=hbcd_qc && cp /hbcd_code/run.py /hbcd_code/$pipeline_name
+#Set permissions
+RUN chmod 555 -R /code
 
-#Define entrypoint
-ENTRYPOINT ["hbcd_qc"]
+#Add code dir to path
+ENV PATH="${PATH}:/code"
+RUN pipeline_name=hbcd_qmri_postproc && cp /code/run.py /code/$pipeline_name
+
+ENTRYPOINT ["hbcd_qmri_postproc"]
