@@ -250,6 +250,13 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
     
     '''
     
+    #Be sure that different directories ends in file seperator
+    output_directory = os.path.join(output_directory, '')
+    bibsnet_directory = os.path.join(bibsnet_directory, '')
+    symri_directory = os.path.join(symri_directory, '')
+    bids_directory = os.path.join(bids_directory, '')
+    
+    
     ##########################################################################################
     ##########################################################################################
     ##########Identify the images that should be used in processing###########################
@@ -312,7 +319,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
     
     #Load some of the images that will be used
     anatomical_reference = ants.image_read(anatomical_reference_path)
-    segmentation_arr = np.array(ants.image_read(bibsnet_seg_path)[:])
+    segmentation = ants.image_read(bibsnet_seg_path)
     t1map = ants.image_read(symri_t1_path)
     t2map = ants.image_read(symri_t2_path)
     pdmap = ants.image_read(symri_pd_path)
@@ -323,22 +330,30 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
     dilated_mask = ants.utils.morphology(bibsnet_mask, 'dilate', 15)
     if anatomical_reference_modality == 'T1w':
         symri_for_reg = ants.image_read(symri_t1w_path)
-        reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, outprefix='', mask=dilated_mask, interpolator = 'nearestNeighbor')
+        reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
     elif anatomical_reference_modality == 'T2w':
         symri_for_reg = ants.image_read(symri_t2w_path)
-        reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, outprefix='', mask=dilated_mask, interpolator = 'nearestNeighbor')
+        reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
 
     #Apply the transform calculated above to the t1map, t2map, and pdmap images
-    Interpolation_Scheme = 'bSpline'
-    t1map_transformed = ants.apply_transforms(anatomical_reference, t1map, reg['fwdtransforms'], interpolator = Interpolation_Scheme)
-    t2map_transformed = ants.apply_transforms(anatomical_reference, t2map, reg['fwdtransforms'], interpolator = Interpolation_Scheme)
-    pdmap_transformed = ants.apply_transforms(anatomical_reference, pdmap, reg['fwdtransforms'], interpolator = Interpolation_Scheme)
+    Map_Interpolation_Scheme = 'bSpline'
+    t1map_transformed = ants.apply_transforms(anatomical_reference, t1map, reg['fwdtransforms'], interpolator = Map_Interpolation_Scheme)
+    t2map_transformed = ants.apply_transforms(anatomical_reference, t2map, reg['fwdtransforms'], interpolator = Map_Interpolation_Scheme)
+    pdmap_transformed = ants.apply_transforms(anatomical_reference, pdmap, reg['fwdtransforms'], interpolator = Map_Interpolation_Scheme)
     
-    #Load the maps and segmentation as arrays to extract ROI values
-    transformed_maps_array_dict = {'T1' : np.array(t1map_transformed[:]),
-                                   'T2' : np.array(t2map_transformed[:]),
-                                   'PD' : np.array(pdmap_transformed[:])}
-    segmentation_arr = np.array(ants.image_read(bibsnet_seg_path)[:])
+    #Also transform the segmentation image back to QALAS (i.e. T1map/T2map/PDmap) space
+    Segmentation_Interpolation_Scheme = 'nearestNeighbor'
+    segmentation_reverse_transformed = ants.apply_transforms(symri_for_reg, segmentation, reg['fwdtransforms'], interpolator = Segmentation_Interpolation_Scheme, whichtoinvert = [True])
+    bibnset_file = bibsnet_seg_path.split('/')[-1]
+    registered_segmentation_path = os.path.join(anat_out_dir, bibnset_file.replace(bibnset_file.split('_')[-3], 'space-QALAS'))
+    ants.image_write(segmentation_reverse_transformed, registered_segmentation_path)
+
+    
+    #Load the maps and registered segmentation as arrays to extract ROI values
+    maps_array_dict = {'T1' : np.array(t1map[:]),
+                                   'T2' : np.array(t2map[:]),
+                                   'PD' : np.array(pdmap[:])}
+    segmentation_reverse_transformed_arr = np.array(segmentation_reverse_transformed[:])
     mask_arr = np.array(ants.image_read(bibsnet_mask_path)[:])
     anatomical_reference_arr = np.array(anatomical_reference[:])
 
@@ -353,18 +368,18 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
                        'T1_Median': [],
                        'T2_Median': [],
                        'PD_Median': [],
-                       'T1_Min' : [],
-                       'T2_Min' : [],
-                       'PD_Min' : [],
-                       'T1_Max' : [],
-                       'T2_Max' : [],
-                       'PD_Max' : [],
+                       'T1_1-percentile' : [],
+                       'T2_1-percentile' : [],
+                       'PD_1-percentile' : [],
+                       'T1_99-percentile' : [],
+                       'T2_99-percentile' : [],
+                       'PD_99-percentile' : [],
                        'T1_Std' : [],
                        'T2_Std' : [],
                        'PD_Std' : []}
     
     #Find unique segmentation values
-    unique_segmentation_vals = np.unique(segmentation_arr)
+    unique_segmentation_vals = np.unique(segmentation_reverse_transformed_arr)
     for seg_val in unique_segmentation_vals:
         if seg_val != 0: #Exclude 0 from analyses
             temp_df = color_lut_df[color_lut_df['Region_Number'] == seg_val]
@@ -373,13 +388,13 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
             else:
                 temp_region_name = temp_df['Region_Name'].values[0]
                 roi_params_dict['Region_Name'].append(temp_region_name)
-                voxel_inds = segmentation_arr == seg_val
-                for temp_image_type in transformed_maps_array_dict.keys():
-                    temp_vals = transformed_maps_array_dict[temp_image_type][voxel_inds]
+                voxel_inds = segmentation_reverse_transformed_arr == seg_val
+                for temp_image_type in maps_array_dict.keys():
+                    temp_vals = maps_array_dict[temp_image_type][voxel_inds]
                     roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
                     roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
-                    roi_params_dict[temp_image_type + '_Min'].append(np.min(temp_vals))
-                    roi_params_dict[temp_image_type + '_Max'].append(np.max(temp_vals))
+                    roi_params_dict[temp_image_type + '_1-percentile'].append(np.percentile(temp_vals, 1))
+                    roi_params_dict[temp_image_type + '_99-percentile'].append(np.percentile(temp_vals, 99))
                     roi_params_dict[temp_image_type + '_Std'].append(np.std(temp_vals))
 
     if os.path.exists(anat_out_dir) == False:
@@ -392,13 +407,16 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
     mask_corr_coef = np.corrcoef(reg['warpedmovout'][mask_inds], anatomical_reference_arr[mask_inds])[0,1]
 
 
-    roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated from QALAS scans using the SyMRI pipeline, registered to an anatomical reference image, and then summarized within the different regions of interest represented in the segmentation file.',
-                           'Original_SyMRI_Images' : [symri_t1_path, symri_t2_path, symri_pd_path],
-                           'Segmentation_Path' : [bibsnet_seg_path],
-                           'Mask_Path' : [bibsnet_mask_path],
-                           'Anatomical_Reference_Path' : [anatomical_reference_path],
+    roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated from QALAS scans using the SyMRI pipeline. A registration was calculated from a high resolution anatomical image to the SyMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
+                           'Original_SyMRI_Images' : ["bids:symri:{}".format(symri_t1_path.split(symri_directory)[-1]),
+                                                      "bids:symri:{}".format(symri_t2_path.split(symri_directory)[-1]),
+                                                      "bids:symri:{}".format(symri_pd_path.split(symri_directory)[-1])],
+                           'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
+                           'QALAS_Registered_Segmentation_Path' : ["bids::{}".format(registered_segmentation_path.split(output_directory)[-1])],
+                           'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
+                           'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],
                            'Anatomical_Reference_Modality' : anatomical_reference_modality,
-                           'Resampling_Scheme' : Interpolation_Scheme,
+                           'Segmentation_Resampling_Scheme' : Segmentation_Interpolation_Scheme,
                            'Voxel_Correlation_Within_Mask' : mask_corr_coef,
                            'Voxel_Correlation_Within_Mask_Description' : 'This is the correlation of voxel intensities between the anatomical reference image and the synthetic weighted image from symri following registration, using only voxels defined in the brain mask.'}
     roi_params_metadata.update(grab_anatomical_reference_metadata(anatomical_reference_path))
@@ -418,12 +436,14 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
     
     #Add json metadata for the PD/T1/T2map images that have been registered to the anatomical template
     resampled_images_metadata = {'Workflow_Description' : 'The values generated in the accompanying images are the quantitative maps derived from QALAS scans that are then registered and resampled to a high-resolution native image for the subject (see Anatomical_Reference_Path for the image that was registered to).',
-                           'Original_SyMRI_Images' : [symri_t1_path, symri_t2_path, symri_pd_path],
-                           'Segmentation_Path' : [bibsnet_seg_path],
-                           'Mask_Path' : [bibsnet_mask_path],
-                           'Anatomical_Reference_Path' : [anatomical_reference_path],
+                           'Original_SyMRI_Images' : ["bids:symri:{}".format(symri_t1_path.split(symri_directory)[-1]),
+                                                      "bids:symri:{}".format(symri_t2_path.split(symri_directory)[-1]),
+                                                      "bids:symri:{}".format(symri_pd_path.split(symri_directory)[-1])],
+                           'Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
+                           'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
+                           'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],
                            'Anatomical_Reference_Modality' : anatomical_reference_modality,
-                           'Resampling_Scheme' : Interpolation_Scheme}
+                           'Resampling_Scheme' : Map_Interpolation_Scheme}
     resampled_images_metadata.update(grab_anatomical_reference_metadata(anatomical_reference_path))
     resampled_images_metadata_json = json.dumps(resampled_images_metadata, indent = 5)
     output_json_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T1map.json'.format(subject_name, session_name, anatomical_reference_modality))
