@@ -55,6 +55,6 @@ RUN chmod 555 -R /code
 
 #Add code dir to path
 ENV PATH="${PATH}:/code"
-RUN pipeline_name=hbcd_qmri_postproc && cp /code/run.py /code/$pipeline_name
+RUN pipeline_name=hbcd_symri_postproc && cp /code/run.py /code/$pipeline_name
 
-ENTRYPOINT ["hbcd_qmri_postproc"]
+ENTRYPOINT ["hbcd_symri_postproc"]
