@@ -7,6 +7,8 @@ import ants
 import pandas as pd
 import nibabel as nib
 import json
+from scipy import ndimage
+
 
 def load_color_lut_df():
     '''Load a copy of the FreeSurfer Color Look Up Table
@@ -71,11 +73,11 @@ def grab_anatomical_reference_metadata(anatomical_reference_path):
 
 def calc_synth_t1w_t2w(t1map_path, t2map_path, pdmap_path, output_folder, subject_name, session_name):
     
-    t1_tr = 2.4*1000
+    t1_tr = 10*1000
     t1_te = 0.00224*1000
 
-    t2_tr = 2.5*1000
-    t2_te = 0.323*1000 
+    t2_tr = 10*1000
+    t2_te = 0.1*1000
 
     temp_t1_img = nib.load(t1map_path)
     temp_t1_data = temp_t1_img.get_fdata()
@@ -323,11 +325,31 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
     t1map = ants.image_read(symri_t1_path)
     t2map = ants.image_read(symri_t2_path)
     pdmap = ants.image_read(symri_pd_path)
+
+    def remove_extra_clusters_from_mask(mask_image_ants):
+    
+        temp_data = np.round(mask_image_ants[:])
+        labels, nb = ndimage.label(temp_data)
+        largest_label_size = 0
+        largest_label = 0
+        for i in range(nb):
+            if i == 0:
+                continue
+            label_size = np.sum(labels == i)
+            if label_size > largest_label_size:
+                largest_label_size = label_size
+                largest_label = i
+        new_mask_data = np.zeros(temp_data.shape)
+        new_mask_data[labels == largest_label] = 1
+        new_mask = mask_image_ants.new_image_like(new_mask_data)
+
+        return new_mask
     
     #Register to the anatomical reference space using either a T1w/T2w workflow
     anatomical_reference = ants.image_read(anatomical_reference_path)
     bibsnet_mask = ants.image_read(bibsnet_mask_path)
-    dilated_mask = ants.utils.morphology(bibsnet_mask, 'dilate', 15)
+    adjusted_bibsnet_mask = remove_extra_clusters_from_mask(bibsnet_mask)
+    dilated_mask = ants.utils.morphology(adjusted_bibsnet_mask, 'dilate', 35)
     if anatomical_reference_modality == 'T1w':
         symri_for_reg = ants.image_read(symri_t1w_path)
         reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
