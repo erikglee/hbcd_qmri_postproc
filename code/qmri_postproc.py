@@ -327,12 +327,12 @@ def calc_symri_stats(bids_directory, bibsnet_directory, symri_directory, output_
     pdmap = ants.image_read(symri_pd_path)
 
     def remove_extra_clusters_from_mask(mask_image_ants):
-    
+
         temp_data = np.round(mask_image_ants[:])
         labels, nb = ndimage.label(temp_data)
         largest_label_size = 0
         largest_label = 0
-        for i in range(nb):
+        for i in range(nb + 1):
             if i == 0:
                 continue
             label_size = np.sum(labels == i)
