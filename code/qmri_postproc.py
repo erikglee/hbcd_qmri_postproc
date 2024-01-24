@@ -388,7 +388,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     Segmentation_Interpolation_Scheme = 'nearestNeighbor'
     segmentation_reverse_transformed = ants.apply_transforms(symri_for_reg, segmentation, reg['fwdtransforms'], interpolator = Segmentation_Interpolation_Scheme, whichtoinvert = [True])
     bibnset_file = bibsnet_seg_path.split('/')[-1]
-    registered_segmentation_path = os.path.join(anat_out_dir, bibnset_file.replace(bibnset_file.split('_')[-3], 'space-QALAS'))
+    registered_segmentation_path = os.path.join(anat_out_dir, bibnset_file.replace(bibnset_file.split('_')[-3], 'space-QALAS')).replace('.gz', '')
     ants.image_write(segmentation_reverse_transformed, registered_segmentation_path)
     replace_file_with_gzipped_version(registered_segmentation_path)
 
@@ -548,13 +548,13 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     #########################################################################################################
         
     #Save new versions of PD/T1/T2map that have been aligned to the anatomical reference space
-    registered_t1map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T1map.nii.gz'.format(subject_name, session_name, anatomical_reference_modality))
+    registered_t1map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T1map.nii'.format(subject_name, session_name, anatomical_reference_modality))
     ants.image_write(t1map_transformed, registered_t1map_path)
     replace_file_with_gzipped_version(registered_t1map_path)
-    registered_t2map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T2map.nii.gz'.format(subject_name, session_name, anatomical_reference_modality))
+    registered_t2map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T2map.nii'.format(subject_name, session_name, anatomical_reference_modality))
     ants.image_write(t2map_transformed, registered_t2map_path)
     replace_file_with_gzipped_version(registered_t2map_path)
-    registered_pdmap_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_PDmap.nii.gz'.format(subject_name, session_name, anatomical_reference_modality))
+    registered_pdmap_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_PDmap.nii'.format(subject_name, session_name, anatomical_reference_modality))
     ants.image_write(pdmap_transformed, registered_pdmap_path)
     replace_file_with_gzipped_version(registered_pdmap_path)
     
