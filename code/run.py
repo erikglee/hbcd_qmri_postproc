@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import qmri_postproc
-import os, glob
+import os, glob, shutil
 import argparse
 
 
@@ -17,6 +17,8 @@ parser.add_argument("bibsnet_deriv_dir", help="The path to the folder where the 
 
 parser.add_argument('--participant_label', '--participant-label', help="The name/label of the subject to be processed (i.e. sub-01 or 01)", type=str)
 parser.add_argument('--session_id', '--session-id', help="OPTIONAL: the name of a specific session to be processed (i.e. ses-01)", type=str)
+parser.add_argument('--overwrite_existing', help='OPTIONAL: if flag is activated, the tool will delete the session folder where outputs are to be stored before processing if said folder already exists.', action='store_true')
+parser.add_argument('--region_groupings_json', nargs='+', help='OPTIONAL: the path to a json file containing region groupings for which to calculate statistics. Multiple files can be provided, resulting in multiple output csv files.', type=str)
 args = parser.parse_args()
 
 
@@ -84,5 +86,15 @@ for temp_participant in participants:
     #Iterate through sessions
     for temp_session in sessions:
 
-        qmri_postproc.calc_symri_stats(bids_dir, bibsnet_deriv_dir, symri_deriv_dir, output_dir, temp_participant, temp_session)
+        session_path = os.path.join(output_dir, temp_participant, temp_session)
+        if os.path.exists(session_path) and args.overwrite_existing:
+            shutil.rmtree(session_path)
+            print('Removing existing session folder at: ' + session_path)
+        elif os.path.exists(session_path):
+            print('Session folder already exists at the following path. Either delete folder or run with --overwrite flag to reprocess: ' + session_path)
+            continue
+        qmri_postproc.calc_symri_stats(bids_dir, bibsnet_deriv_dir,
+                                       symri_deriv_dir, output_dir,
+                                       temp_participant, temp_session,
+                                       custom_roi_groupings = args.region_groupings_json)
         print('Finished with: subject {}, session {}'.format(temp_participant, temp_session))
