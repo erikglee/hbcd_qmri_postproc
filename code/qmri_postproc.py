@@ -541,8 +541,6 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
 
             temp_grouping_partial_name = temp_grouping_path.split('/')[-1].replace('.json', '')
             output_csv_path = os.path.join(anat_out_dir, '{}_{}_desc-{}.csv'.format(subject_name, session_name, temp_grouping_partial_name))
-            for temp_key in custom_roi_params_dict.keys():
-                print('   {} : {}'.format(temp_key, len(custom_roi_params_dict[temp_key])))
             params_df = pd.DataFrame(custom_roi_params_dict)
             params_df.to_csv(output_csv_path, index=False) 
 
