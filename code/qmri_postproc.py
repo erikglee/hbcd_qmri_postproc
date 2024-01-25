@@ -517,7 +517,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                 voxel_inds = segmentation_reverse_transformed_arr == allowed_values[0]
                 for i in range(len(allowed_values)):
                     voxel_inds = voxel_inds + (segmentation_reverse_transformed_arr == allowed_values[i])
-                for temp_image_type in maps_array_dict.keys():
+                for x, temp_image_type in enumerate(maps_array_dict.keys()):
                     temp_vals = maps_array_dict[temp_image_type][voxel_inds]
                     try:
                         temp_mean = np.mean(temp_vals)
@@ -531,7 +531,8 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                         custom_roi_params_dict[temp_image_type + '_1-percentile'].append(temp_1pct)
                         custom_roi_params_dict[temp_image_type + '_99-percentile'].append(temp_99pct)
                         custom_roi_params_dict[temp_image_type + '_Std'].append(temp_std)
-                        custom_roi_params_dict['Region_Name'].append(temp_grouping)
+                        if x == 0:
+                            custom_roi_params_dict['Region_Name'].append(temp_grouping)
                     except:
                         if temp_vals.shape[0] == 0:
                             print('   Warning: No voxels found in {}. Region will not be included in CSV.'.format(temp_grouping))
