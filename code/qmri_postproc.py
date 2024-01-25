@@ -510,6 +510,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
 
             with open(temp_grouping_path, 'r') as f:
                 temp_groupings = json.load(f)
+            custom_roi_params_dict['Region_Name'].append(temp_grouping)
             for temp_grouping in temp_groupings.keys():
                 allowed_values = []
                 for i, temp_region in enumerate(temp_groupings[temp_grouping]):
@@ -518,15 +519,20 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                 voxel_inds = segmentation_reverse_transformed_arr == allowed_values[0]
                 for i in range(len(allowed_values)):
                     voxel_inds = voxel_inds + (segmentation_reverse_transformed_arr == allowed_values[i])
-                custom_roi_params_dict['Region_Name'].append(temp_grouping)
                 for temp_image_type in maps_array_dict.keys():
                     temp_vals = maps_array_dict[temp_image_type][voxel_inds]
                     print('{}: {}'.format(temp_grouping, temp_vals.shape))
-                    custom_roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
-                    custom_roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
-                    custom_roi_params_dict[temp_image_type + '_1-percentile'].append(np.percentile(temp_vals, 1))
-                    custom_roi_params_dict[temp_image_type + '_99-percentile'].append(np.percentile(temp_vals, 99))
-                    custom_roi_params_dict[temp_image_type + '_Std'].append(np.std(temp_vals))
+                    try:
+                        custom_roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
+                        custom_roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
+                        custom_roi_params_dict[temp_image_type + '_1-percentile'].append(np.percentile(temp_vals, 1))
+                        custom_roi_params_dict[temp_image_type + '_99-percentile'].append(np.percentile(temp_vals, 99))
+                        custom_roi_params_dict[temp_image_type + '_Std'].append(np.std(temp_vals))
+                    except:
+                        if temp_vals.shape[0] == 0:
+                            print('   Warning: No voxels found in {}. Region will not be included in CSV.'.format(temp_grouping))
+                        else:
+                            raise ValueError('   Error: Unknown error when calculating custom summary statistics for {}.'.format(temp_grouping))
 
             temp_grouping_partial_name = temp_grouping_path.split('/')[-1].replace('.json', '')
             output_csv_path = os.path.join(anat_out_dir, '{}_{}_desc-{}.csv'.format(subject_name, session_name, temp_grouping_partial_name))
