@@ -545,7 +545,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                            'Voxel_Correlation_Within_Mask_Description' : 'This is the correlation of voxel intensities between the anatomical reference image and the synthetic weighted image from symri following registration, using only voxels defined in the brain mask.'}
             custom_roi_params_metadata.update(grab_anatomical_reference_metadata(anatomical_reference_path))
             custom_roi_params_metadata['Original_SyMRI_JSON_Metadata'] = symri_json_dict
-            custom_roi_params_metadata['Custom_ROI_Grouping'] = temp_grouping
+            custom_roi_params_metadata['Custom_ROI_Grouping'] = temp_groupings
 
             custom_roi_params_metadata_json = json.dumps(custom_roi_params_metadata, indent = 5)
             output_json_path = os.path.join(anat_out_dir, '{}_{}_desc-{}.json'.format(subject_name, session_name, temp_grouping_partial_name))
