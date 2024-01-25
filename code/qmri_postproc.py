@@ -520,11 +520,17 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                 for temp_image_type in maps_array_dict.keys():
                     temp_vals = maps_array_dict[temp_image_type][voxel_inds]
                     try:
-                        custom_roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
-                        custom_roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
-                        custom_roi_params_dict[temp_image_type + '_1-percentile'].append(np.percentile(temp_vals, 1))
-                        custom_roi_params_dict[temp_image_type + '_99-percentile'].append(np.percentile(temp_vals, 99))
-                        custom_roi_params_dict[temp_image_type + '_Std'].append(np.std(temp_vals))
+                        temp_mean = np.mean(temp_vals)
+                        temp_median = np.median(temp_vals)
+                        temp_1pct = np.percentile(temp_vals, 1)
+                        temp_99pct = np.percentile(temp_vals, 99)
+                        temp_std = np.std(temp_vals)
+
+                        custom_roi_params_dict[temp_image_type + '_Mean'].append(temp_mean)
+                        custom_roi_params_dict[temp_image_type + '_Median'].append(temp_median)
+                        custom_roi_params_dict[temp_image_type + '_1-percentile'].append(temp_1pct)
+                        custom_roi_params_dict[temp_image_type + '_99-percentile'].append(temp_99pct)
+                        custom_roi_params_dict[temp_image_type + '_Std'].append(temp_std)
                         custom_roi_params_dict['Region_Name'].append(temp_grouping)
                     except:
                         if temp_vals.shape[0] == 0:
