@@ -1,5 +1,5 @@
 #!/usr/local/bin/python3
-import os, glob, gzip
+import os, glob, gzip, warnings
 import nibabel
 import matplotlib.pyplot as plt
 import numpy as np
@@ -95,8 +95,9 @@ def calc_synth_t1w_t2w(t1map_path, t2map_path, pdmap_path, output_folder, subjec
     temp_t2_data = nib.load(t2map_path).get_fdata()
     temp_pd_data = nib.load(pdmap_path).get_fdata()
     
-    t1w = temp_pd_data*(1.0 - np.exp(-t1_tr/temp_t1_data))*np.exp(-t1_te/temp_t2_data)
-    t2w = temp_pd_data*(1.0 - np.exp(-t2_tr/temp_t1_data))*np.exp(-t2_te/temp_t2_data)
+    with warnings.catch_warnings(action="ignore"):
+        t1w = temp_pd_data*(1.0 - np.exp(-t1_tr/temp_t1_data))*np.exp(-t1_te/temp_t2_data)
+        t2w = temp_pd_data*(1.0 - np.exp(-t2_tr/temp_t1_data))*np.exp(-t2_te/temp_t2_data)
             
     if os.path.exists(output_folder) == False:
         os.makedirs(output_folder)
