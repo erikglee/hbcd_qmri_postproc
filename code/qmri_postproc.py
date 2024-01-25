@@ -301,7 +301,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
             anatomical_reference_path = possible_anatomical_references[0]
     #Use T1w image if T2w seg not found
     elif len(t1w_segs):
-        print('   Using segmentation in T2w space as reference image')
+        print('   Using segmentation in T1w space as reference image')
         anatomical_reference_modality = 'T1w'
         bibsnet_seg_path = t1w_segs[0]
         bibsnet_masks = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T1w_desc-brain_mask.nii.gz'))
