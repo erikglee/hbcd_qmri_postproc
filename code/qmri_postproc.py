@@ -37,6 +37,7 @@ def load_color_lut_df():
         A pandas dataframe with the FreeSurfer Color Look Up Table
 
     '''
+    print('   Loading FreeSurfer Color Look Up Table')
     freesurfer_color_lut = '/code/FreeSurferColorLUT.txt'
     with open(freesurfer_color_lut, 'r') as f:
         lines = f.readlines()
@@ -68,6 +69,7 @@ def grab_anatomical_reference_metadata(anatomical_reference_path):
     
     #anatomical_reference_path = path to a nifti image that has a corresponding json sidecar
     
+    print('   Grabbing metadata from anatomical reference image')
     json_path = anatomical_reference_path.replace('.nii' + anatomical_reference_path.split('.nii')[-1], '.json')
     with open(json_path, 'r') as f:
         contents = json.load(f)
@@ -84,6 +86,7 @@ def grab_anatomical_reference_metadata(anatomical_reference_path):
 
 def calc_synth_t1w_t2w(t1map_path, t2map_path, pdmap_path, output_folder, subject_name, session_name):
     
+    print('   Calculating synthetic T1w and T2w images from QALAS maps')
     t1_tr = 10*1000
     t1_te = 0.00224*1000
 
@@ -151,7 +154,7 @@ def make_outline_overlay_underlay_plot_ribbon(path_to_underlay, path_to_overlay,
 
     """
 
-
+    print('   Making overlay/underlay plot')
 
     underlay_path = path_to_underlay
     underlay_obj = nib.load(underlay_path)
@@ -283,6 +286,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     
     #If possible, use T2w image instead of T1w
     if len(t2w_segs):
+        print('   Using segmentation in T2w space as reference image')
         anatomical_reference_modality = 'T2w'
         bibsnet_seg_path = t2w_segs[0]
         bibsnet_masks = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T2w_desc-brain_mask.nii.gz'))
@@ -297,6 +301,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
             anatomical_reference_path = possible_anatomical_references[0]
     #Use T1w image if T2w seg not found
     elif len(t1w_segs):
+        print('   Using segmentation in T2w space as reference image')
         anatomical_reference_modality = 'T1w'
         bibsnet_seg_path = t1w_segs[0]
         bibsnet_masks = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T1w_desc-brain_mask.nii.gz'))
@@ -335,6 +340,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     symri_t1w_path, symri_t2w_path = calc_synth_t1w_t2w(symri_t1_path, symri_t2_path, symri_pd_path, os.path.join(anat_out_dir, 'qalas_derived_weighted_images'), subject_name, session_name)
     
     #Load some of the images that will be used
+    print('   Loading SyMRI maps')
     anatomical_reference = ants.image_read(anatomical_reference_path)
     segmentation = ants.image_read(bibsnet_seg_path)
     t1map = ants.image_read(symri_t1_path)
@@ -369,6 +375,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         return new_mask
     
     #Register to the anatomical reference space using either a T1w/T2w workflow
+    print('   Registering SyMRI maps to anatomical reference space')
     anatomical_reference = ants.image_read(anatomical_reference_path)
     bibsnet_mask = ants.image_read(bibsnet_mask_path)
     adjusted_bibsnet_mask = remove_extra_clusters_from_mask(bibsnet_mask)
@@ -426,6 +433,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     
     #Find unique segmentation values########################################################
     ########################################################################################
+    print('   Calculating Standard ROI Relaxometry Values')
     unique_segmentation_vals = np.unique(segmentation_reverse_transformed_arr)
     for seg_val in unique_segmentation_vals:
         if seg_val != 0: #Exclude 0 from analyses
@@ -480,7 +488,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     #Also create csv file for any custom groupings of regions
     if type(custom_roi_groupings) != type(None):
         for temp_grouping_path in custom_roi_groupings:
-
+            print('   Calculating Custom ROI Relaxometry Values for {}'.format(temp_grouping_path))
             custom_roi_params_dict = {'Region_Name' : [],
                     'T1_Mean': [],
                     'T2_Mean': [],
@@ -550,6 +558,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     #########################################################################################################
         
     #Save new versions of PD/T1/T2map that have been aligned to the anatomical reference space
+    print('   Saving registered SyMRI maps')
     registered_t1map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T1map.nii'.format(subject_name, session_name, anatomical_reference_modality))
     ants.image_write(t1map_transformed, registered_t1map_path)
     registered_t1map_path = replace_file_with_gzipped_version(registered_t1map_path)

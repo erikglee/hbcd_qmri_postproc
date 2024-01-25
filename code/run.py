@@ -97,8 +97,9 @@ for temp_participant in participants:
         elif os.path.exists(session_path):
             print('Session folder already exists at the following path. Either delete folder, run with --overwrite_existing flag to reprocess, or with --skip_existing to ignore existing folders: ' + session_path)
             continue
+        print('Starting processing for: {}, {}'.format(temp_participant, temp_session))
         qmri_postproc.calc_symri_stats(bids_dir, bibsnet_deriv_dir,
                                        symri_deriv_dir, output_dir,
                                        temp_participant, temp_session,
                                        custom_roi_groupings = args.region_groupings_json)
-        print('Finished with: subject {}, session {}'.format(temp_participant, temp_session))
+        print('Finished with: {}, {}'.format(temp_participant, temp_session))
