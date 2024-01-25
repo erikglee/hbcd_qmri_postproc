@@ -26,7 +26,7 @@ def replace_file_with_gzipped_version(file_path):
             f_out.writelines(f_in)
     os.remove(file_path)
     
-    return
+    return file_path + '.gz'
 
 def load_color_lut_df():
     '''Load a copy of the FreeSurfer Color Look Up Table
@@ -390,7 +390,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     bibnset_file = bibsnet_seg_path.split('/')[-1]
     registered_segmentation_path = os.path.join(anat_out_dir, bibnset_file.replace(bibnset_file.split('_')[-3], 'space-QALAS')).replace('.gz', '')
     ants.image_write(segmentation_reverse_transformed, registered_segmentation_path)
-    replace_file_with_gzipped_version(registered_segmentation_path)
+    registered_segmentation_path = replace_file_with_gzipped_version(registered_segmentation_path)
 
     
     #Load the maps and registered segmentation as arrays to extract ROI values
@@ -550,13 +550,13 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     #Save new versions of PD/T1/T2map that have been aligned to the anatomical reference space
     registered_t1map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T1map.nii'.format(subject_name, session_name, anatomical_reference_modality))
     ants.image_write(t1map_transformed, registered_t1map_path)
-    replace_file_with_gzipped_version(registered_t1map_path)
+    registered_t1map_path = replace_file_with_gzipped_version(registered_t1map_path)
     registered_t2map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_T2map.nii'.format(subject_name, session_name, anatomical_reference_modality))
     ants.image_write(t2map_transformed, registered_t2map_path)
-    replace_file_with_gzipped_version(registered_t2map_path)
+    registered_t2map_path = replace_file_with_gzipped_version(registered_t2map_path)
     registered_pdmap_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_PDmap.nii'.format(subject_name, session_name, anatomical_reference_modality))
     ants.image_write(pdmap_transformed, registered_pdmap_path)
-    replace_file_with_gzipped_version(registered_pdmap_path)
+    registered_pdmap_path = replace_file_with_gzipped_version(registered_pdmap_path)
     
     #Add json metadata for the PD/T1/T2map images that have been registered to the anatomical template
     resampled_images_metadata = {'Workflow_Description' : 'The values generated in the accompanying images are the quantitative maps derived from QALAS scans that are then registered and resampled to a high-resolution native image for the subject (see Anatomical_Reference_Path for the image that was registered to).',
