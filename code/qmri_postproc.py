@@ -446,7 +446,6 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                 voxel_inds = segmentation_reverse_transformed_arr == seg_val
                 for temp_image_type in maps_array_dict.keys():
                     temp_vals = maps_array_dict[temp_image_type][voxel_inds]
-                    print('{}: {}'.format(temp_region_name, temp_vals.shape))
                     roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
                     roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
                     roi_params_dict[temp_image_type + '_1-percentile'].append(np.percentile(temp_vals, 1))
@@ -510,7 +509,6 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
 
             with open(temp_grouping_path, 'r') as f:
                 temp_groupings = json.load(f)
-            custom_roi_params_dict['Region_Name'].append(temp_grouping)
             for temp_grouping in temp_groupings.keys():
                 allowed_values = []
                 for i, temp_region in enumerate(temp_groupings[temp_grouping]):
@@ -521,13 +519,13 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                     voxel_inds = voxel_inds + (segmentation_reverse_transformed_arr == allowed_values[i])
                 for temp_image_type in maps_array_dict.keys():
                     temp_vals = maps_array_dict[temp_image_type][voxel_inds]
-                    print('{}: {}'.format(temp_grouping, temp_vals.shape))
                     try:
                         custom_roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
                         custom_roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
                         custom_roi_params_dict[temp_image_type + '_1-percentile'].append(np.percentile(temp_vals, 1))
                         custom_roi_params_dict[temp_image_type + '_99-percentile'].append(np.percentile(temp_vals, 99))
                         custom_roi_params_dict[temp_image_type + '_Std'].append(np.std(temp_vals))
+                        custom_roi_params_dict['Region_Name'].append(temp_grouping)
                     except:
                         if temp_vals.shape[0] == 0:
                             print('   Warning: No voxels found in {}. Region will not be included in CSV.'.format(temp_grouping))
