@@ -375,7 +375,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         return new_mask
     
     #Register to the anatomical reference space using either a T1w/T2w workflow
-    print('   Registering SyMRI maps to anatomical reference space')
+    print('   Registering SyMRI synthetic weighted image to anatomical reference space')
     anatomical_reference = ants.image_read(anatomical_reference_path)
     bibsnet_mask = ants.image_read(bibsnet_mask_path)
     adjusted_bibsnet_mask = remove_extra_clusters_from_mask(bibsnet_mask)
