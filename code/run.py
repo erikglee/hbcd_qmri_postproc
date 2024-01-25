@@ -95,7 +95,7 @@ for temp_participant in participants:
             shutil.rmtree(session_path)
             print('Removing existing session folder at: ' + session_path)
         elif os.path.exists(session_path):
-            print('Session folder already exists at the following path. Either delete folder or run with --overwrite flag to reprocess: ' + session_path)
+            print('Session folder already exists at the following path. Either delete folder, run with --overwrite_existing flag to reprocess, or with --skip_existing to ignore existing folders: ' + session_path)
             continue
         qmri_postproc.calc_symri_stats(bids_dir, bibsnet_deriv_dir,
                                        symri_deriv_dir, output_dir,
