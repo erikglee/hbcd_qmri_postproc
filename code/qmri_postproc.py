@@ -95,7 +95,8 @@ def calc_synth_t1w_t2w(t1map_path, t2map_path, pdmap_path, output_folder, subjec
     temp_t2_data = nib.load(t2map_path).get_fdata()
     temp_pd_data = nib.load(pdmap_path).get_fdata()
     
-    with warnings.catch_warnings(action="ignore"):
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
         t1w = temp_pd_data*(1.0 - np.exp(-t1_tr/temp_t1_data))*np.exp(-t1_te/temp_t2_data)
         t2w = temp_pd_data*(1.0 - np.exp(-t2_tr/temp_t1_data))*np.exp(-t2_te/temp_t2_data)
             
