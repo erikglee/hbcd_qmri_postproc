@@ -446,6 +446,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                 voxel_inds = segmentation_reverse_transformed_arr == seg_val
                 for temp_image_type in maps_array_dict.keys():
                     temp_vals = maps_array_dict[temp_image_type][voxel_inds]
+                    print('{}: {}'.format(temp_region_name, temp_vals.shape))
                     roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
                     roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
                     roi_params_dict[temp_image_type + '_1-percentile'].append(np.percentile(temp_vals, 1))
@@ -520,6 +521,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                 custom_roi_params_dict['Region_Name'].append(temp_grouping)
                 for temp_image_type in maps_array_dict.keys():
                     temp_vals = maps_array_dict[temp_image_type][voxel_inds]
+                    print('{}: {}'.format(temp_grouping, temp_vals.shape))
                     custom_roi_params_dict[temp_image_type + '_Mean'].append(np.mean(temp_vals))
                     custom_roi_params_dict[temp_image_type + '_Median'].append(np.median(temp_vals))
                     custom_roi_params_dict[temp_image_type + '_1-percentile'].append(np.percentile(temp_vals, 1))
