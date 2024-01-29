@@ -46,8 +46,8 @@ if type(args.region_groupings_json) != type(None):
     region_groupings_json = []
     for temp_grouping_json in args.region_groupings_json:
         if os.path.isabs(temp_grouping_json) == False:
-            temp_grouping_json_full_path = os.path.join(cwd, temp_grouping_json)
-        region_groupings_json.append(temp_grouping_json_full_path)
+            temp_grouping_json = os.path.join(cwd, temp_grouping_json)
+        region_groupings_json.append(temp_grouping_json)
 else:
     region_groupings_json = None
 
