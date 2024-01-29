@@ -42,6 +42,14 @@ if os.path.isabs(symri_deriv_dir) == False:
 bibsnet_deriv_dir = args.bibsnet_deriv_dir
 if os.path.isabs(bibsnet_deriv_dir) == False:
     bibsnet_deriv_dir = os.path.join(cwd, bibsnet_deriv_dir)
+if type(args.region_groupings_json) != type(None):
+    region_groupings_json = []
+    for temp_grouping_json in args.region_groupings_json:
+        if os.path.isabs(temp_grouping_json) == False:
+            temp_grouping_json_full_path = os.path.join(cwd, temp_grouping_json)
+        region_groupings_json.append(temp_grouping_json_full_path)
+else:
+    region_groupings_json = None
 
 #Set session label
 if args.session_id:
@@ -107,5 +115,5 @@ for temp_participant in participants:
         qmri_postproc.calc_symri_stats(bids_dir, bibsnet_deriv_dir,
                                        symri_deriv_dir, output_dir,
                                        temp_participant, temp_session,
-                                       custom_roi_groupings = args.region_groupings_json)
+                                       custom_roi_groupings = region_groupings_json)
         print('Finished with: {}, {}'.format(temp_participant, temp_session))
