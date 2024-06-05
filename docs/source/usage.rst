@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 HBCD_SYMRI_POSTPROC Usage
-===============================================
+=========================
 
 There are three primary inputs to the HBCD_SYMRI_POSTPROC tool.
 In each case, the input is provided as a "study-wide" folder, such
@@ -25,7 +25,6 @@ Example: ::
 
    hbcd_symri_postproc /bids_root /out participant /symri_deriv_dir /bibsnet_deriv_dir
 
-
 Command-Line Arguments
 ======================
 
@@ -33,43 +32,27 @@ Command-Line Arguments
    :module: code.run
    :func: build_parser
 
+Positional Arguments
+--------------------
 
+- **bids_dir**: Path to study-wide BIDS directory.
+- **output_dir**: Path to study-wide output directory.
+- **analysis_level**: Always "participant". Meant to represent that processing only occurs within a given participant.
+- **symri_deriv_dir**: Path to study-wide SyMRI/Relaxometry directory.
+- **bibsnet_deriv_dir**: Path to study-wide BIBSNET/Segmentation directory.
 
+Optional Flags
+--------------
 
-
-
-| **Positional:**
-|
-| **bids_dir**
-
-   Path to study-wide BIDS directory.
-| **output_dir**
-
-   Path to study-wide output directory.
-| **analysis_level** - Always "participant". Meant to represent that processing only occurs within a given participant.
-|
-| **symri_deriv_dir** - Path to study-wide SyMRI/Relaxometry directory.
-|
-| **bibsnet_deriv_dir** - Path to study-wide BIBSNET/Segmentation directory.
-|
-| **Optional Flags:**
-|
-| **--participant_label** - List of space-delimited participant identifiers to process. If flag isn't provided all subjects will be processed.
-|
-| **--session_id** - The name of a single session to process. If flag isn't provided all sessions will be processed.
-|
-| **--overwrite_existing** - If flag is activated, the tool will delete the session folder where outputs are to be stored before processing if said folder already exists.
-|
-| **--skip_existing** - If flag is activated, the tool will skip processing for a session if the session folder where outputs are to be stored already exists.
-|
-| **--region_groupings_json** - The path to a json file containing region groupings for which to calculate statistics. Multiple files can be provided, resulting in multiple output csv files.
-|
+- **--participant_label**: List of space-delimited participant identifiers to process. If flag isn't provided all subjects will be processed.
+- **--session_id**: The name of a single session to process. If flag isn't provided all sessions will be processed.
+- **--overwrite_existing**: If flag is activated, the tool will delete the session folder where outputs are to be stored before processing if said folder already exists.
+- **--skip_existing**: If flag is activated, the tool will skip processing for a session if the session folder where outputs are to be stored already exists.
+- **--region_groupings_json**: The path to a JSON file containing region groupings for which to calculate statistics. Multiple files can be provided, resulting in multiple output CSV files.
 
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
-
-
 
 Indices and tables
 ==================
