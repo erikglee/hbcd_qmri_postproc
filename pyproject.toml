@@ -13,10 +13,14 @@ authors = [
   { name = "Your Name", email = "your.email@example.com" }
 ]
 
-[project.dependencies]
-sphinx = "^4.0.2"
-sphinx_rtd_theme = "^0.5.2"
-sphinxarg = "^0.3.1"  # Ensure you have sphinx-argparse added
+dependencies = [
+    "numpy",
+    "pandas",
+    "matplotlib",
+    "scipy",
+    "ants",
+    "nibabel"
+]
 
 # Add any other dependencies your project requires here
 [project.optional-dependencies]
