@@ -28,9 +28,11 @@ sphinx:
 # to build your documentation
 # See https://docs.readthedocs.io/en/stable/guides/reproducible-builds.html
 python:
+  version: 3.12
   install:
     - requirements: docs/source/requirements.txt
     - method: pip
+      path: .
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
