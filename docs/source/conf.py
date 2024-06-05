@@ -18,6 +18,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.napoleon',
     'sphinx.ext.viewcode',
+    'sphinxarg.ext'
 ]
 
 templates_path = ['_templates']
@@ -31,3 +32,7 @@ html_static_path = ['_static']
 
 # If your main document is not index.rst, uncomment and specify it
 # master_doc = 'index'
+
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../code'))
