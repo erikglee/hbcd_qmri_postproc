@@ -34,8 +34,9 @@ Command-Line Arguments
    :func: build_parser
 
 
-Command-Line Arguments
-----------------------
+
+
+
 
 | **Positional:**
 |
