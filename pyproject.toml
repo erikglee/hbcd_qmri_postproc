@@ -25,7 +25,7 @@ dependencies = [
 [project.optional-dependencies]
 doc = [
     "pydot >= 1.2.3",
-    "sphinx >= 5",
+    "sphinx >= 7.3",
     "sphinx-argparse",
     "sphinx_rtd_theme>=0.5.2",
 ]
