@@ -29,30 +29,12 @@ Example: ::
 Command-Line Arguments
 ----------------------
 
-| **Positional:**
-|
-| **bids_dir** - Path to study-wide BIDS directory.
-|
-| **output_dir** - Path to study-wide output directory.
-|
-| **analysis_level** - Always "participant". Meant to represent that processing only occurs within a given participant.
-|
-| **symri_deriv_dir** - Path to study-wide SyMRI/Relaxometry directory.
-|
-| **bibsnet_deriv_dir** - Path to study-wide BIBSNET/Segmentation directory.
-|
-| **Optional Flags:**
-|
-| **--participant_label** - List of space-delimited participant identifiers to process. If flag isn't provided all subjects will be processed.
-|
-| **--session_id** - The name of a single session to process. If flag isn't provided all sessions will be processed.
-|
-| **--overwrite_existing** - If flag is activated, the tool will delete the session folder where outputs are to be stored before processing if said folder already exists.
-|
-| **--skip_existing** - If flag is activated, the tool will skip processing for a session if the session folder where outputs are to be stored already exists.
-|
-| **--region_groupings_json** - The path to a json file containing region groupings for which to calculate statistics. Multiple files can be provided, resulting in multiple output csv files.
-|
+
+This tool is used in the Healthy Brain and Child Development (HBCD) study
+following the conversion of QALAS acquisitions to T1, T2, and PD maps.
+The purpose of the tool is to take quantitative maps, register them to
+either raw T1w or T2w images where anatomical segmentations have already
+been performed, and then extract quantitative values from the segmentations.
 
 .. toctree::
    :maxdepth: 2
