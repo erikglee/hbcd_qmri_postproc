@@ -1,6 +1,6 @@
 [build-system]
-requires = ["hatchling", "hatch-vcs", "nipreps-versions"]
-build-backend = "hatchling.build"
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "HBCD_SYMRI_POSTPROC"
