@@ -7,5 +7,6 @@ setup(
     install_requires=[
         'sphinx',
         'sphinx_rtd_theme',
+        'sphinx-argparse'
     ],
 )
