@@ -2,6 +2,23 @@
 requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "HBCD_SYMRI_POSTPROC"
+version = "1"
+description = "TBD"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+  { name = "Your Name", email = "your.email@example.com" }
+]
+
+[project.dependencies]
+sphinx = "^4.0.2"
+sphinx_rtd_theme = "^0.5.2"
+sphinxarg = "^0.3.1"  # Ensure you have sphinx-argparse added
+
+# Add any other dependencies your project requires here
 [project.optional-dependencies]
 doc = [
     "sphinx >= 5",
