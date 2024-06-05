@@ -23,7 +23,7 @@ through a single call of this application.
 
 Example: ::
 
-hbcd_symri_postproc /bids_root /out participant /symri_deriv_dir /bibsnet_deriv_dir
+   hbcd_symri_postproc /bids_root /out participant /symri_deriv_dir /bibsnet_deriv_dir
 
 
 
