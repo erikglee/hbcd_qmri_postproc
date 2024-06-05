@@ -352,8 +352,11 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     t1map_json = symri_t1_path.replace('.nii.gz', '.json')
     with open(t1map_json, 'r') as f:
         symri_json_dict = json.load(f)
-    del symri_json_dict["SeriesDescription"]
-    del symri_json_dict["ImageType"]
+    try:
+        del symri_json_dict["SeriesDescription"]
+        del symri_json_dict["ImageType"]
+    except:
+        pass
 
     def remove_extra_clusters_from_mask(mask_image_ants):
 
