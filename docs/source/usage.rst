@@ -31,9 +31,13 @@ Command-Line Arguments
 
 | **Positional:**
 |
-| **bids_dir** - Path to study-wide BIDS directory.
+| **bids_dir**
+
+   Path to study-wide BIDS directory.
 |
-| **output_dir** - Path to study-wide output directory.
+| **output_dir**
+
+   Path to study-wide output directory.
 |
 | **analysis_level** - Always "participant". Meant to represent that processing only occurs within a given participant.
 |
