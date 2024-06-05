@@ -5,7 +5,7 @@
 # Required
 version: 2
 
-# Set the OS, Python version and other tools you might need
+# Set the OS, Python version, and other tools you might need
 build:
   os: ubuntu-22.04
   tools:
@@ -36,4 +36,3 @@ python:
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
