@@ -28,11 +28,11 @@ Example: ::
 
 Command-Line Arguments
 ----------------------
-.. argparse::
-   :ref: code.cli.parser._build_parser
-   :prog: code
-   :nodefault:
-   :nodefaultconst:
+#.. argparse::
+#   :ref: code.cli.parser._build_parser
+#   :prog: code
+#   :nodefault:
+#   :nodefaultconst:
 
 This tool is used in the Healthy Brain and Child Development (HBCD) study
 following the conversion of QALAS acquisitions to T1, T2, and PD maps.
