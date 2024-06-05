@@ -14,7 +14,9 @@ been performed, and then extract quantitative values from the segmentations.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
+
+   usage
+   outputs
 
 
 
