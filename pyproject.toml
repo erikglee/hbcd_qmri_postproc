@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "HBCD_SYMRI_POSTPROC"
-version = "1"
+version = "1.0.0"
 description = "TBD"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -22,10 +22,15 @@ dependencies = [
     "nibabel"
 ]
 
-# Add any other dependencies your project requires here
 [project.optional-dependencies]
 doc = [
     "sphinx >= 5",
     "sphinx-argparse",
-    "sphinx_rtd_theme>=0.5.2"
+    "sphinx_rtd_theme >= 0.5.2"
 ]
+
+[project.urls]
+"Homepage" = "https://example.com"
+"Documentation" = "https://example.com/docs"
+"Source Code" = "https://github.com/yourname/yourproject"
+"Issue Tracker" = "https://github.com/yourname/yourproject/issues"
