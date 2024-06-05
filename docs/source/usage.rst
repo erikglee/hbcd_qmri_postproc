@@ -27,6 +27,14 @@ Example: ::
 
 
 Command-Line Arguments
+======================
+
+.. argparse::
+   :module: code.run
+   :func: build_parser
+
+
+Command-Line Arguments
 ----------------------
 
 | **Positional:**
