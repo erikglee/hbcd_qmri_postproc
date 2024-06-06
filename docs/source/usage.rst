@@ -28,7 +28,7 @@ Example: ::
 Command-Line Arguments
 ======================
 .. argparse::
-   :ref: code.run.build_parser
+   :ref: code.my_parser.build_parser
    :prog: HBCD_SYMRI_POSTPROC
    :nodefault:
    :nodefaultconst:
