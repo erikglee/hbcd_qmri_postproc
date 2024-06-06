@@ -19,12 +19,3 @@ been performed, and then extract quantitative values from the segmentations.
    usage
    inputs_formatting
    outputs
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
