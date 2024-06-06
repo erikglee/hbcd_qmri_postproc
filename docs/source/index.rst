@@ -17,6 +17,7 @@ been performed, and then extract quantitative values from the segmentations.
    :caption: Contents:
 
    usage
+   inputs_formatting
    outputs
 
 
