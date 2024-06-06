@@ -16,6 +16,7 @@ been performed, and then extract quantitative values from the segmentations.
    :maxdepth: 1
    :caption: Contents:
 
+   installation
    usage
    inputs_formatting
    outputs
