@@ -37,11 +37,12 @@ singularity image: ::
       output_dir=/path/to/output
       symri_dir=/path/to/symri
       bibsnet_dir=/path/to/bibsnet
+      
       singularity run -B $bids_dir:/bids \
-      -B $output_dir:/output \
-      -B $symri_dir:/symri \
-      -B $bibsnet_dir:/bibsnet \
-      $container_path /data /output participant /symri /bibsnet
+         -B $output_dir:/output \
+         -B $symri_dir:/symri \
+         -B $bibsnet_dir:/bibsnet \
+         $container_path /data /output participant /symri /bibsnet
 
 To see more specific information about how this tool expects
 the inputs to be formatted (i.e. file naming conventions), 
