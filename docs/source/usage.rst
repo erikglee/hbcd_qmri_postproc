@@ -50,7 +50,7 @@ see the inputs formatting page.
 
 
 Command-Line Arguments
-======================
+----------------------
 .. argparse::
    :ref: postproc_code.my_parser.build_parser
    :prog: hbcd_symri_postproc

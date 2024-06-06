@@ -35,13 +35,3 @@ In this case it is a series of "bind" commands that will give singularity
 access to the necessary directories. This is followed by the path to the
 container and then the arguments for the primary script to be ran by the
 container.
-
-BIDS directory
---------------
-
-The BIDS directory should have exactly one T1w and/or T2w image
-for each session that will be processed. The T1w and/or T2w image
-should already be registered to the segmentation(s) found in the
-segmentations directory. If both T1w/T2w images and segmentations
-are present, the pipeline will currently (as of 6/5/24) give priority
-to registering the relaxometry images to the T2w images.
