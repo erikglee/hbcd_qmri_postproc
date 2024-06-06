@@ -38,3 +38,5 @@ import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../../code'))
 print('DOES CODE EXIST: {}'.format(os.path.exists('../../code')))
+
+autodoc_mock_imports = ["nibabel", "matplotlib", "numpy", "ants", "pandas", "scipy"]
