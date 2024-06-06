@@ -13,7 +13,7 @@ either raw T1w or T2w images where anatomical segmentations have already
 been performed, and then extract quantitative values from the segmentations.
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
    :caption: Contents:
 
    usage
