@@ -39,4 +39,10 @@ sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../../code'))
 print('DOES CODE EXIST: {}'.format(os.path.exists('../../code')))
 
+try:
+    from code import my_parser
+    print('My Parser Successfully Imported')
+except:
+    print('My Parser Failed to Import')
+
 autodoc_mock_imports = ["nibabel", "matplotlib", "numpy", "ants", "pandas", "scipy"]
