@@ -21,14 +21,33 @@ output directory. Processing is totally independent across subjects and sessions
 so that the results will be the same if the subjects are processed in parallel or
 through a single call of this application.
 
+The design of the application is meant to follow general 
+`BIDS-App guidelines <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
+For more details on general usage principles of BIDS-Apps, see the linked documentation.
 
 
-Example: ::
 
-   hbcd_symri_postproc /bids_root /out participant /symri_deriv_dir /bibsnet_deriv_dir
+As described in the installation section, this tool is meant to be
+interacted with in containerized form. The example below shows the
+general layout for how you may want to interact with the container
+to conduct processing if you have the container downloaded as a
+singularity image: ::
+
+
+      container_path=/path/to/container.sif
+      bids_dir=/path/to/bids
+      output_dir=/path/to/output
+      symri_dir=/path/to/symri
+      bibsnet_dir=/path/to/bibsnet
+      singularity run -B $bids_dir:/bids \
+      -B $output_dir:/output \
+      -B $symri_dir:/symri \
+      -B $bibsnet_dir:/bibsnet \
+      $container_path /data /output participant /symri /bibsnet
 
 To see more specific information about how this tool expects
-the inputs to be formatted, see the inputs formatting page.
+the inputs to be formatted (i.e. file naming conventions), 
+see the inputs formatting page.
 
 
 Command-Line Arguments
