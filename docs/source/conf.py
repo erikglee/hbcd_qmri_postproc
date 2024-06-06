@@ -36,8 +36,8 @@ html_static_path = ['_static']
 import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../../code'))
-print('DOES CODE EXIST: {}'.format(os.path.exists('../../code')))
+sys.path.insert(0, os.path.abspath('../../postproc_code'))
+print('DOES CODE EXIST: {}'.format(os.path.exists('../../postproc_code')))
 
 try:
     from code import my_parser
