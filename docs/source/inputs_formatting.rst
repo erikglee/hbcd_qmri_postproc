@@ -57,6 +57,24 @@ value within the segmentation will be mapped to the corresponding label in the F
 If there is a voxel label that is not found in the FreeSurferColorLUT this will result in an error.
 
 
+region_groupings_json
+---------------------
+
+This file is a json whose keys correspond to user-specified custom names for one
+or more groupings of brain regions, and whose values are lists of the brain region
+labels that are to be included in each grouping. The labels included in the list
+must come directly from the "Label Name" column of the FreeSurfer colorlut. When
+the tool is given a region_groupings_json, relaxometry statistics will be computed
+within all voxels that correspond to a given group.
+
+An example formatting is as follows: ::
+
+   {
+       "Cerebral-Cortex": ["Left-Cerebral-White-Matter", "Right-Cerebral-White-Matter"],
+       "Cerebral-White-Matter": ["Left-Cerebral-Cortex", "Right-Cerebral-Cortex"]
+   }
+
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents:
