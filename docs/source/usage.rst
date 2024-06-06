@@ -25,8 +25,6 @@ The design of the application is meant to follow general
 `BIDS-App guidelines <https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005209>`_.
 For more details on general usage principles of BIDS-Apps, see the linked documentation.
 
-
-
 As described in the installation section, this tool is meant to be
 interacted with in containerized form. The example below shows the
 general layout for how you may want to interact with the container
