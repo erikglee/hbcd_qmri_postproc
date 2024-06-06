@@ -29,9 +29,10 @@ Command-Line Arguments
 ======================
 
 .. argparse::
-   :module: code.run
-   :func: build_parser
+   :ref: code.run.build_parser
    :prog: HBCD_SYMRI_POSTPROC
+   :nodefault:
+   :nodefaultconst:
 
 Positional Arguments
 --------------------
