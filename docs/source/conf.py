@@ -37,13 +37,5 @@ import os
 import sys
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../../postproc_code'))
-print('DOES CODE EXIST: {}'.format(os.path.exists('../../postproc_code')))
-
-try:
-    from postproc_code import my_parser
-    print('My Parser Successfully Imported')
-except Exception as e:
-    print('My Parser Failed to Import')
-    print(e)
 
 autodoc_mock_imports = ["nibabel", "matplotlib", "numpy", "ants", "pandas", "scipy"]
