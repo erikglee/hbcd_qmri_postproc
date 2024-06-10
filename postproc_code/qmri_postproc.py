@@ -38,7 +38,7 @@ def load_color_lut_df():
 
     '''
     print('   Loading FreeSurfer Color Look Up Table')
-    freesurfer_color_lut = '/code/FreeSurferColorLUT.txt'
+    freesurfer_color_lut = '/postproc_code/FreeSurferColorLUT.txt'
     with open(freesurfer_color_lut, 'r') as f:
         lines = f.readlines()
     color_lut_dict = {'Region_Number': [], 'Region_Name': []}
