@@ -358,10 +358,10 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     adjusted_bibsnet_mask = remove_extra_clusters_from_mask(bibsnet_mask)
     dilated_mask = ants.utils.morphology(adjusted_bibsnet_mask, 'dilate', 35)
     if anatomical_reference_modality == 'T1w':
-        symri_for_reg = ants.image_read(symri_t1w_path)
+        symri_for_reg = ants.image_read(symri_t1w_path[0])
         reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
     elif anatomical_reference_modality == 'T2w':
-        symri_for_reg = ants.image_read(symri_t2w_path)
+        symri_for_reg = ants.image_read(symri_t2w_path[0])
         reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
 
     #Apply the transform calculated above to the t1map, t2map, and pdmap images
