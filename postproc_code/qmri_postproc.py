@@ -368,7 +368,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     for temp_symri_map in symri_map_path_dict.keys():
         temp_map = ants.image_read(symri_map_path_dict[temp_symri_map])
         temp_map_transformed = ants.apply_transforms(anatomical_reference, temp_map, reg['fwdtransforms'], interpolator = Map_Interpolation_Scheme)
-        maps_array_dict[temp_symri_map] = np.array(temp_map_transformed[:])
+        maps_array_dict[temp_symri_map] = np.array(temp_map[:])
         registered_temp_map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_{}map.nii'.format(subject_name, session_name, anatomical_reference_modality, temp_symri_map))
         registered_maps_paths[temp_symri_map] = registered_temp_map_path
         print('      Saving {}'.format(registered_temp_map_path))
