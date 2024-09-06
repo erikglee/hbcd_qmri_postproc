@@ -426,9 +426,9 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
 
     if os.path.exists(anat_out_dir) == False:
         os.makedirs(anat_out_dir)
-    output_csv_path = os.path.join(anat_out_dir, '{}_{}_desc-ParametricROIValues.csv'.format(subject_name, session_name))
+    output_tsv_path = os.path.join(anat_out_dir, '{}_{}_desc-ParametricROIValues.tsv'.format(subject_name, session_name))
     params_df = pd.DataFrame(roi_params_dict)
-    params_df.to_csv(output_csv_path, index=False) 
+    params_df.to_csv(output_tsv_path, index=False, sep = '\t') 
 
     mask_inds = mask_arr > 0.5
     mask_corr_coef = np.corrcoef(reg['warpedmovout'][mask_inds], anatomical_reference_arr[mask_inds])[0,1]
@@ -501,9 +501,9 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                             raise ValueError('   Error: Unknown error when calculating custom summary statistics for {}.'.format(temp_grouping))
 
             temp_grouping_partial_name = temp_grouping_path.split('/')[-1].replace('.json', '')
-            output_csv_path = os.path.join(anat_out_dir, '{}_{}_desc-{}.csv'.format(subject_name, session_name, temp_grouping_partial_name))
+            output_tsv_path = os.path.join(anat_out_dir, '{}_{}_desc-{}.tsv'.format(subject_name, session_name, temp_grouping_partial_name))
             params_df = pd.DataFrame(custom_roi_params_dict)
-            params_df.to_csv(output_csv_path, index=False) 
+            params_df.to_csv(output_tsv_path, index=False, sep = '\t') 
 
             custom_roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated from QALAS scans using the SyMRI pipeline. A registration was calculated from a high resolution anatomical image to the SyMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
                            'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
