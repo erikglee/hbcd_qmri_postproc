@@ -256,11 +256,9 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         print('   Using segmentation in T2w space as reference image')
         anatomical_reference_modality = 'T2w'
         bibsnet_seg_path = t2w_segs[0]
-        bibsnet_masks = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T2w_desc-brain_mask.nii.gz'))
-        if len(bibsnet_masks) == 0:
-            raise ValueError('Error: A T2w BIBSNET segmentation was found without a corresponding mask.')
-        else:
-            bibsnet_mask_path = bibsnet_masks[0]
+        bibsnet_mask_path = bibsnet_seg_path.replace('desc-aseg_dseg.nii.gz', 'desc-brain_mask.nii.gz')
+        if os.path.exists(bibsnet_mask) == False:
+            raise ValueError('Error: A T2w BIBSNET segmentation was found without a corresponding mask. Expected to find mask with name: {}'.format(bibsnet_mask_path))
         possible_anatomical_references = glob.glob(os.path.join(bids_directory, subject_name, session_name, 'anat', '*T2w.nii.gz'))
         if len(possible_anatomical_references) != 1:
             raise ValueError('Error: If a T2w segmentation is to be used for processing, only 1 T2w reference found in the subjects anat directory must be present but {} were found'.format(len(possible_anatomical_references)))
@@ -271,11 +269,9 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         print('   Using segmentation in T1w space as reference image')
         anatomical_reference_modality = 'T1w'
         bibsnet_seg_path = t1w_segs[0]
-        bibsnet_masks = glob.glob(os.path.join(bibsnet_directory, subject_name, session_name, 'anat', '*space-T1w_desc-brain_mask.nii.gz'))
-        if len(bibsnet_masks) == 0:
-            raise ValueError('Error: A T1w BIBSNET segmentation was found without a corresponding mask.')
-        else:
-            bibsnet_mask_path = bibsnet_masks[0]
+        bibsnet_mask_path = bibsnet_seg_path.replace('desc-aseg_dseg.nii.gz', 'desc-brain_mask.nii.gz')
+        if os.path.exists(bibsnet_mask_path) == False:
+            raise ValueError('Error: A T1w BIBSNET segmentation was found without a corresponding mask. Expected to find mask with name: {}'.format(bibsnet_mask_path))
         possible_anatomical_references = glob.glob(os.path.join(bids_directory, subject_name, session_name, 'anat', '*T1w.nii.gz'))
         if len(possible_anatomical_references) != 1:
             raise ValueError('Error: If a T1w segmentation is to be used for processing, only 1 T1w reference found in the subjects anat directory must be present but {} were found'.format(len(possible_anatomical_references)))
