@@ -257,7 +257,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         anatomical_reference_modality = 'T2w'
         bibsnet_seg_path = t2w_segs[0]
         bibsnet_mask_path = bibsnet_seg_path.replace('desc-aseg_dseg.nii.gz', 'desc-brain_mask.nii.gz')
-        if os.path.exists(bibsnet_mask) == False:
+        if os.path.exists(bibsnet_mask_path) == False:
             raise ValueError('Error: A T2w BIBSNET segmentation was found without a corresponding mask. Expected to find mask with name: {}'.format(bibsnet_mask_path))
         possible_anatomical_references = glob.glob(os.path.join(bids_directory, subject_name, session_name, 'anat', '*T2w.nii.gz'))
         if len(possible_anatomical_references) != 1:
