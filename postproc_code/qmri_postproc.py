@@ -375,6 +375,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         maps_array_dict[temp_symri_map] = np.array(temp_map_transformed[:])
         registered_temp_map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_{}map.nii'.format(subject_name, session_name, anatomical_reference_modality, temp_symri_map))
         registered_maps_paths[temp_symri_map] = registered_temp_map_path
+        print('      Saving {}'.format(registered_temp_map_path))
         ants.image_write(temp_map_transformed, registered_temp_map_path)
     #Also transform the segmentation image back to QALAS (i.e. T1map/T2map/PDmap) space
     Segmentation_Interpolation_Scheme = 'nearestNeighbor'
