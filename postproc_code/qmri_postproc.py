@@ -397,22 +397,11 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     color_lut_df = load_color_lut_df()
     
     #Initialize a dictionary to store all the ROI values/names
-    roi_params_dict = {'Region_Name' : [],
-                       'T1_Mean': [],
-                       'T2_Mean': [],
-                       'PD_Mean': [],
-                       'T1_Median': [],
-                       'T2_Median': [],
-                       'PD_Median': [],
-                       'T1_1-percentile' : [],
-                       'T2_1-percentile' : [],
-                       'PD_1-percentile' : [],
-                       'T1_99-percentile' : [],
-                       'T2_99-percentile' : [],
-                       'PD_99-percentile' : [],
-                       'T1_Std' : [],
-                       'T2_Std' : [],
-                       'PD_Std' : []}
+    measure_tpyes = ['Mean', 'Median', '1-percentile', '99-percentile', 'Std']
+    roi_params_dict = {'Region_Name' : []}
+    for temp_image_type in maps_array_dict.keys():
+        for temp_measure in measure_tpyes:
+            roi_params_dict[temp_image_type + '_' + temp_measure] = []
     
     #Find unique segmentation values########################################################
     ########################################################################################
@@ -473,22 +462,10 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     if type(custom_roi_groupings) != type(None):
         for temp_grouping_path in custom_roi_groupings:
             print('   Calculating Custom ROI Relaxometry Values for {}'.format(temp_grouping_path))
-            custom_roi_params_dict = {'Region_Name' : [],
-                    'T1_Mean': [],
-                    'T2_Mean': [],
-                    'PD_Mean': [],
-                    'T1_Median': [],
-                    'T2_Median': [],
-                    'PD_Median': [],
-                    'T1_1-percentile' : [],
-                    'T2_1-percentile' : [],
-                    'PD_1-percentile' : [],
-                    'T1_99-percentile' : [],
-                    'T2_99-percentile' : [],
-                    'PD_99-percentile' : [],
-                    'T1_Std' : [],
-                    'T2_Std' : [],
-                    'PD_Std' : []}
+            custom_roi_params_dict = {'Region_Name' : []}
+            for temp_image_type in maps_array_dict.keys():
+                for temp_measure in measure_tpyes:
+                    custom_roi_params_dict[temp_image_type + '_' + temp_measure] = []
 
 
             with open(temp_grouping_path, 'r') as f:
