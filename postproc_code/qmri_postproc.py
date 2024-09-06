@@ -296,7 +296,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         raise ValueError('Error: Expected to have exactly one T1w and T2w image, but found the following images {}.'.format(symri_t1w_path + symri_t2w_path))
 
     if (len(symri_t1) + len(symri_t2) + len(symri_pd)) == 0:
-        raise ValueError('Error: Expected to have exactly at least one T1map, T2map, or PDmap, but found the following images {}.'.format(symri_t1 + symri_t2 + symri_pd))
+        raise ValueError('Error: Expected to have at least one T1map, T2map, or PDmap, but found the following images {}.'.format(symri_t1 + symri_t2 + symri_pd))
     else:
         symri_map_path_dict = {}
         if len(symri_t1):
@@ -323,7 +323,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
 
     #Load the JSON metadata from one of original symri outputs.
     #Also remove SeriesDescription/ImageType fields that are specific to weighting.
-    map_json = next(iter(symri_map_path_dict)).replace('.nii.gz', '.json')
+    map_json = next(iter(symri_map_path_dict.values())).replace('.nii.gz', '.json')
     with open(map_json, 'r') as f:
         symri_json_dict = json.load(f)
     try:
