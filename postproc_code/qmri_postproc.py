@@ -301,10 +301,10 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
             example_img_name = qmri_t1[0]
         if len(qmri_t2):
             qmri_map_path_dict['T2'] = qmri_t2[0]
-            example_img_name = qmri_t1[0]
+            example_img_name = qmri_t2[0]
         if len(qmri_pd):
             qmri_map_path_dict['PD'] = qmri_pd[0]
-            example_img_name = qmri_t1[0]
+            example_img_name = qmri_pd[0]
 
     sequence_name = ''
     for temp_keyvalue in example_img_name.split('/')[-1].split('_'):
