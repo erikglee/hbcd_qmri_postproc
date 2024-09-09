@@ -12,9 +12,7 @@ the primary output folder of interest will be as follows: ::
 
     <output_dir>/sub-{label}/ses-{label}/anat/
 
-During processing, the application will generate synthetic T1w/T2w
-images under the "qalas_derived_weighted_images" folder. These images
-are created to have the following parameters: ::
+The application expects synthetic T1w/T2w images to be... ::
 
     T1: TR = XXms, TE = XXms
     T2: TR = XXms, TE = XXms

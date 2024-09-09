@@ -14,7 +14,7 @@ for each session that will be processed. The T1w and/or T2w image
 should already be registered to the segmentation(s) found in the
 segmentations directory. If both T1w/T2w images and segmentations
 are present, the pipeline will currently (as of 6/5/24) give priority
-to registering the relaxometry images to the T2w images.
+to registering the relaxometry images to the T2w images by default.
 
 SyMRI/relaxometry directory
 ---------------------------

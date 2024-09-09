@@ -375,6 +375,8 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         if os.path.exists(anat_out_dir) == False:
             os.makedirs(anat_out_dir)
         ants.image_write(temp_map_transformed, registered_temp_map_path)
+        replace_file_with_gzipped_version(registered_temp_map_path)
+        registered_maps_paths[temp_symri_map] = registered_temp_map_path + '.gz'
     #Also transform the segmentation image back to QALAS (i.e. T1map/T2map/PDmap) space
     Segmentation_Interpolation_Scheme = 'nearestNeighbor'
     segmentation_reverse_transformed = ants.apply_transforms(symri_for_reg, segmentation, reg['fwdtransforms'], interpolator = Segmentation_Interpolation_Scheme, whichtoinvert = [True])

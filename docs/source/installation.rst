@@ -6,8 +6,8 @@
 Installation
 ============
 
-The intended use of this pipeline is through the use of a Singularity/Docker
-image. The image can be built using the Dockerfile found in the repository,
+The intended use of this pipeline is through the use of a `Singularity <https://docs.sylabs.io/guides/3.7/user-guide/index.html>`_  or `Docker <https://docs.docker.com/get-started/>`_
+image. The image can be built using the Dockerfile found in the `repository <https://github.com/erikglee/HBCD_SYMRI_POSTPROC>`_,
 or it can be pulled from DockerHub as a singularity using the following command: ::
     
         singularity pull docker://dcanumn/hbcd_symri_postproc:<version_num>
