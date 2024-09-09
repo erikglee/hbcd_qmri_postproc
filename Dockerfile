@@ -45,17 +45,17 @@ RUN python3 -m pip install matplotlib==3.5.1
 
 
 #Grab code + colorlut
-RUN mkdir /postproc_code
-COPY ./postproc_code/ /postproc_code/
-#COPY ./postproc_code/run.py /postproc_code
-#COPY ./postproc_code/qmri_postproc.py /postproc_code 
-#COPY ./postproc_code/FreeSurferColorLUT.txt /postproc_code
+RUN mkdir /hbcd_qmri_postproc
+COPY ./hbcd_qmri_postproc/ /hbcd_qmri_postproc/
+#COPY ./hbcd_qmri_postproc/run.py /hbcd_qmri_postproc
+#COPY ./hbcd_qmri_postproc/qmri_postproc.py /hbcd_qmri_postproc 
+#COPY ./hbcd_qmri_postproc/FreeSurferColorLUT.txt /hbcd_qmri_postproc
 
 #Set permissions
-RUN chmod 555 -R /postproc_code
+RUN chmod 555 -R /hbcd_qmri_postproc
 
 #Add code dir to path
-ENV PATH="${PATH}:/postproc_code"
-RUN pipeline_name=hbcd_qmri_postproc && cp /postproc_code/run.py /postproc_code/$pipeline_name
+ENV PATH="${PATH}:/hbcd_qmri_postproc"
+RUN pipeline_name=hbcd_qmri_postproc && cp /hbcd_qmri_postproc/run.py /hbcd_qmri_postproc/$pipeline_name
 
 ENTRYPOINT ["hbcd_qmri_postproc"]
