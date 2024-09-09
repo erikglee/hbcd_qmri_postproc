@@ -490,24 +490,28 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
                 for x, temp_image_type in enumerate(maps_array_dict.keys()):
                     temp_vals = maps_array_dict[temp_image_type][voxel_inds]
                     try:
-                        temp_mean = np.mean(temp_vals)
-                        temp_median = np.median(temp_vals)
-                        temp_1pct = np.percentile(temp_vals, 1)
-                        temp_99pct = np.percentile(temp_vals, 99)
-                        temp_std = np.std(temp_vals)
+                        if temp_vals.shape[0] == 0:
+                            custom_roi_params_dict[temp_image_type + '_Mean'].append(np.nan)
+                            custom_roi_params_dict[temp_image_type + '_Median'].append(np.nan)
+                            custom_roi_params_dict[temp_image_type + '_1-percentile'].append(np.nan)
+                            custom_roi_params_dict[temp_image_type + '_99-percentile'].append(np.nan)
+                            custom_roi_params_dict[temp_image_type + '_Std'].append(np.nan)
+                        else:
+                            temp_mean = np.mean(temp_vals)
+                            temp_median = np.median(temp_vals)
+                            temp_1pct = np.percentile(temp_vals, 1)
+                            temp_99pct = np.percentile(temp_vals, 99)
+                            temp_std = np.std(temp_vals)
 
-                        custom_roi_params_dict[temp_image_type + '_Mean'].append(temp_mean)
-                        custom_roi_params_dict[temp_image_type + '_Median'].append(temp_median)
-                        custom_roi_params_dict[temp_image_type + '_1-percentile'].append(temp_1pct)
-                        custom_roi_params_dict[temp_image_type + '_99-percentile'].append(temp_99pct)
-                        custom_roi_params_dict[temp_image_type + '_Std'].append(temp_std)
+                            custom_roi_params_dict[temp_image_type + '_Mean'].append(temp_mean)
+                            custom_roi_params_dict[temp_image_type + '_Median'].append(temp_median)
+                            custom_roi_params_dict[temp_image_type + '_1-percentile'].append(temp_1pct)
+                            custom_roi_params_dict[temp_image_type + '_99-percentile'].append(temp_99pct)
+                            custom_roi_params_dict[temp_image_type + '_Std'].append(temp_std)
                         if x == 0:
                             custom_roi_params_dict['Region_Name'].append(temp_grouping)
                     except:
-                        if temp_vals.shape[0] == 0:
-                            print('   Warning: No voxels found in {}. Region will not be included in TSV.'.format(temp_grouping))
-                        else:
-                            raise ValueError('   Error: Unknown error when calculating custom summary statistics for {}.'.format(temp_grouping))
+                        raise ValueError('   Error: Unknown error when calculating custom summary statistics for {}.'.format(temp_grouping))
 
             temp_grouping_partial_name = temp_grouping_path.split('/')[-1].replace('.json', '')
             output_tsv_path = os.path.join(anat_out_dir, '{}_{}_desc-{}_scalarstats.tsv'.format(subject_name, session_name, temp_grouping_partial_name))
@@ -529,7 +533,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
             for temp_qmri_map in qmri_map_path_dict.keys():
                 roi_params_metadata['Original_qMRI_Images'].append("bids:qmri:{}".format(qmri_map_path_dict[temp_qmri_map].split(qmri_directory)[-1]))
             custom_roi_params_metadata_json = json.dumps(custom_roi_params_metadata, indent = 5)
-            output_json_path = os.path.join(anat_out_dir, '{}_{}_desc-{}.json'.format(subject_name, session_name, temp_grouping_partial_name))
+            output_json_path = os.path.join(anat_out_dir, '{}_{}_desc-{}_scalarstats.json'.format(subject_name, session_name, temp_grouping_partial_name))
 
             with open(output_json_path, 'w') as f:
                 f.write(custom_roi_params_metadata_json)
