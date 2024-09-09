@@ -460,7 +460,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     roi_params_metadata['Original_qMRI_JSON_Metadata'] = qmri_json_dict
 
     roi_params_metadata_json = json.dumps(roi_params_metadata, indent = 5)
-    output_json_path = os.path.join(anat_out_dir, '{}_{}_desc-ParametricROIValues.json'.format(subject_name, session_name))
+    output_json_path = os.path.join(anat_out_dir, '{}_{}_desc-AsegROIs_scalarstats.json'.format(subject_name, session_name))
     with open(output_json_path, 'w') as f:
         f.write(roi_params_metadata_json)
 
