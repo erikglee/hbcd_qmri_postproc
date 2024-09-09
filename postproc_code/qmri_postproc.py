@@ -213,7 +213,8 @@ def make_outline_overlay_underlay_plot_ribbon(path_to_underlay, path_to_overlay,
 
 def calc_qmri_stats(bids_directory, bibsnet_directory,
                      qmri_directory, output_directory,
-                     subject_name, session_name, custom_roi_groupings = None):
+                     subject_name, session_name, custom_roi_groupings = None,
+                     sequence_name_source = 'acq'):
     '''Function to generate items of interest based on quantitative MRI maps
     
     
@@ -297,10 +298,21 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
         qmri_map_path_dict = {}
         if len(qmri_t1):
             qmri_map_path_dict['T1'] = qmri_t1[0]
+            example_img_name = qmri_t1[0]
         if len(qmri_t2):
             qmri_map_path_dict['T2'] = qmri_t2[0]
+            example_img_name = qmri_t1[0]
         if len(qmri_pd):
             qmri_map_path_dict['PD'] = qmri_pd[0]
+            example_img_name = qmri_t1[0]
+
+    sequence_name = ''
+    for temp_keyvalue in example_img_name.split('/')[-1].split('_'):
+        if sequence_name_source == temp_keyvalue.split('-')[0]:
+            sequence_name = temp_keyvalue
+            break
+    if sequence_name == '':
+        sequence_name = 'quant'
         
     #########################################################################################################
     #########################################################################################################
@@ -431,9 +443,9 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     mask_corr_coef = np.corrcoef(reg['warpedmovout'][mask_inds], anatomical_reference_arr[mask_inds])[0,1]
 
 
-    roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated from QALAS scans using the qMRI pipeline. A registration was calculated from a high resolution anatomical image to the qMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
+    roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated using the qMRI pipeline. A registration was calculated from a high resolution anatomical image to the qMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
                            'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
-                           'QALAS_Registered_Segmentation_Path' : ["bids:qmri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
+                           'qMRI_Registered_Segmentation_Path' : ["bids:qmri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
                            'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
                            'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],
                            'Anatomical_Reference_Modality' : anatomical_reference_modality,
@@ -502,9 +514,9 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
             params_df = pd.DataFrame(custom_roi_params_dict)
             params_df.to_csv(output_tsv_path, index=False, sep = '\t') 
 
-            custom_roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated from QALAS scans using the qMRI pipeline. A registration was calculated from a high resolution anatomical image to the qMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
+            custom_roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated using the qMRI pipeline. A registration was calculated from a high resolution anatomical image to the qMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
                            'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
-                           'QALAS_Registered_Segmentation_Path' : ["bids:qmri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
+                           'qMRI_Registered_Segmentation_Path' : ["bids:qmri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
                            'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
                            'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],
                            'Anatomical_Reference_Modality' : anatomical_reference_modality,
@@ -528,7 +540,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     #########################################################################################################
     
     #Add json metadata for the PD/T1/T2map images that have been registered to the anatomical template
-    resampled_images_metadata = {'Workflow_Description' : 'The values generated in the accompanying images are the quantitative maps derived from QALAS scans that are then registered and resampled to a high-resolution native image for the subject (see Anatomical_Reference_Path for the image that was registered to).',
+    resampled_images_metadata = {'Workflow_Description' : 'The values generated in the accompanying images are the quantitative maps that have been registered and resampled to a high-resolution native image for the subject (see Anatomical_Reference_Path for the image that was registered to).',
                            'Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
                            'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
                            'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],

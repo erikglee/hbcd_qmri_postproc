@@ -17,5 +17,6 @@ def build_parser():
     parser.add_argument('--overwrite_existing', help='OPTIONAL: if flag is activated, the tool will delete the session folder where outputs are to be stored before processing if said folder already exists.', action='store_true')
     parser.add_argument('--skip_existing', help='OPTIONAL: if flag is activated, the tool will skip processing for a session if the session folder where outputs are to be stored already exists.', action='store_true')
     parser.add_argument('--region_groupings_json', nargs='+', help='OPTIONAL: the path to a json file containing region groupings for which to calculate statistics. Multiple files can be provided, resulting in multiple output csv files.', type=str)
+    parser.add_argument('--sequence_name_source', help='OPTIONAL: the the key for the key/value pair to try and grab sequence name from. For example if the qMRI file is named sub-1_acq-QALAS.nii.gz, this should be "acq". If the sequence is found, it will be represented as "quant" in the output files.', type=str, default = 'acq')
 
     return parser
