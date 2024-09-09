@@ -37,7 +37,7 @@ RUN apt-get update && \
 #RUN apt-get install -y python3
 #RUN apt-get install -y python3-dev
 #RUN python3 -m pip install python-dev-tools
-RUN python3 -m pip install antspyx==0.3.8
+RUN python3 -m pip install antspyx==0.4.2
 RUN python3 -m pip install numpy==1.22.4 #previously was 1.20.3
 RUN python3 -m pip install scipy==1.8.0
 RUN python3 -m pip install nibabel==3.2.2
