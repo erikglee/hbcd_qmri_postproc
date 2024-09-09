@@ -25,9 +25,9 @@ def main():
     analysis_level = args.analysis_level
     if analysis_level != 'participant':
         raise ValueError('Error: analysis level must be participant, but program received: ' + analysis_level)
-    symri_deriv_dir = args.symri_deriv_dir
-    if os.path.isabs(symri_deriv_dir) == False:
-        symri_deriv_dir = os.path.join(cwd, symri_deriv_dir)
+    qmri_deriv_dir = args.qmri_deriv_dir
+    if os.path.isabs(qmri_deriv_dir) == False:
+        qmri_deriv_dir = os.path.join(cwd, qmri_deriv_dir)
     bibsnet_deriv_dir = args.bibsnet_deriv_dir
     if os.path.isabs(bibsnet_deriv_dir) == False:
         bibsnet_deriv_dir = os.path.join(cwd, bibsnet_deriv_dir)
@@ -95,16 +95,17 @@ def main():
                 print('Session folder already exists at the following path. Either delete folder, run with --overwrite_existing flag to reprocess, or with --skip_existing to ignore existing folders: ' + session_path)
                 continue
             print('Starting processing for: {}, {}'.format(temp_participant, temp_session))
-            if os.path.exists(os.path.join(symri_deriv_dir, temp_participant, temp_session)) == False:
-                print('   No SyMRI Relaxometry Maps directory found for the following, skipping processing: {}, {}'.format(temp_participant, temp_session))
+            if os.path.exists(os.path.join(qmri_deriv_dir, temp_participant, temp_session)) == False:
+                print('   No qMRI Relaxometry Maps directory found for the following, skipping processing: {}, {}'.format(temp_participant, temp_session))
                 continue
             if os.path.exists(os.path.join(bibsnet_deriv_dir, temp_participant, temp_session)) == False:
                 print('   No BIBSNET/CABINET segmentations directory found for the following, skipping processing: {}, {}'.format(temp_participant, temp_session))
                 continue
-            qmri_postproc.calc_symri_stats(bids_dir, bibsnet_deriv_dir,
-                                        symri_deriv_dir, output_dir,
+            qmri_postproc.calc_qmri_stats(bids_dir, bibsnet_deriv_dir,
+                                        qmri_deriv_dir, output_dir,
                                         temp_participant, temp_session,
-                                        custom_roi_groupings = region_groupings_json)
+                                        custom_roi_groupings = region_groupings_json,
+                                        sequence_name_source = args.sequence_name_source)
             print('Finished with: {}, {}'.format(temp_participant, temp_session))
 
 if __name__ == "__main__":
