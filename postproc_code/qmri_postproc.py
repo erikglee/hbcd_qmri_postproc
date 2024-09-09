@@ -435,7 +435,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
 
     if os.path.exists(anat_out_dir) == False:
         os.makedirs(anat_out_dir)
-    output_tsv_path = os.path.join(anat_out_dir, '{}_{}_desc-ParametricROIValues.tsv'.format(subject_name, session_name))
+    output_tsv_path = os.path.join(anat_out_dir, '{}_{}_desc-AsegROIs_scalarstats.tsv'.format(subject_name, session_name))
     params_df = pd.DataFrame(roi_params_dict)
     params_df.to_csv(output_tsv_path, index=False, sep = '\t') 
 
@@ -467,7 +467,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
 
     ##########################################################################################
     ##########################################################################################
-    #Also create csv file for any custom groupings of regions
+    #Also create tsv file for any custom groupings of regions
     if type(custom_roi_groupings) != type(None):
         for temp_grouping_path in custom_roi_groupings:
             print('   Calculating Custom ROI Relaxometry Values for {}'.format(temp_grouping_path))
@@ -505,17 +505,16 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
                             custom_roi_params_dict['Region_Name'].append(temp_grouping)
                     except:
                         if temp_vals.shape[0] == 0:
-                            print('   Warning: No voxels found in {}. Region will not be included in CSV.'.format(temp_grouping))
+                            print('   Warning: No voxels found in {}. Region will not be included in TSV.'.format(temp_grouping))
                         else:
                             raise ValueError('   Error: Unknown error when calculating custom summary statistics for {}.'.format(temp_grouping))
 
             temp_grouping_partial_name = temp_grouping_path.split('/')[-1].replace('.json', '')
-            output_tsv_path = os.path.join(anat_out_dir, '{}_{}_desc-{}.tsv'.format(subject_name, session_name, temp_grouping_partial_name))
+            output_tsv_path = os.path.join(anat_out_dir, '{}_{}_desc-{}_scalarstats.tsv'.format(subject_name, session_name, temp_grouping_partial_name))
             params_df = pd.DataFrame(custom_roi_params_dict)
             params_df.to_csv(output_tsv_path, index=False, sep = '\t') 
 
-            custom_roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated using the qMRI pipeline. A registration was calculated from a high resolution anatomical image to the qMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
-                           'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
+            custom_roi_params_metadata = {'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
                            'qMRI_Registered_Segmentation_Path' : ["bids:qmri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
                            'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
                            'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],
@@ -540,8 +539,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     #########################################################################################################
     
     #Add json metadata for the PD/T1/T2map images that have been registered to the anatomical template
-    resampled_images_metadata = {'Workflow_Description' : 'The values generated in the accompanying images are the quantitative maps that have been registered and resampled to a high-resolution native image for the subject (see Anatomical_Reference_Path for the image that was registered to).',
-                           'Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
+    resampled_images_metadata = {'Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
                            'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
                            'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],
                            'Anatomical_Reference_Modality' : anatomical_reference_modality,
