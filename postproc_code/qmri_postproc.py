@@ -211,8 +211,8 @@ def make_outline_overlay_underlay_plot_ribbon(path_to_underlay, path_to_overlay,
     return
 
 
-def calc_symri_stats(bids_directory, bibsnet_directory,
-                     symri_directory, output_directory,
+def calc_qmri_stats(bids_directory, bibsnet_directory,
+                     qmri_directory, output_directory,
                      subject_name, session_name, custom_roi_groupings = None):
     '''Function to generate items of interest based on quantitative MRI maps
     
@@ -223,7 +223,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         Path to the study-level BIDS directory
     bibsnet_directory : str
         Path to the study-level BIBSNET directory
-    symri_directory : str
+    qmri_directory : str
         Path to the study-level SYMRI directory
     output_directory : str
         Path to the study-level directory where output should be saved
@@ -240,7 +240,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     #Be sure that different directories ends in file seperator
     output_directory = os.path.join(output_directory, '')
     bibsnet_directory = os.path.join(bibsnet_directory, '')
-    symri_directory = os.path.join(symri_directory, '')
+    qmri_directory = os.path.join(qmri_directory, '')
     bids_directory = os.path.join(bids_directory, '')
     
     
@@ -282,25 +282,25 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
         
         
     #Find the SyMRI Maps
-    symri_t1 = glob.glob(os.path.join(symri_directory, subject_name, 'ses*', 'anat', '*T1map.nii.gz'))
-    symri_t2 = glob.glob(os.path.join(symri_directory, subject_name, 'ses*', 'anat', '*T2map.nii.gz'))
-    symri_pd = glob.glob(os.path.join(symri_directory, subject_name, 'ses*', 'anat', '*PDmap.nii.gz')) 
-    symri_t1w_path = glob.glob(os.path.join(symri_directory, subject_name, 'ses*', 'anat', '*T1w.nii.gz'))
-    symri_t2w_path = glob.glob(os.path.join(symri_directory, subject_name, 'ses*', 'anat', '*T2w.nii.gz'))
+    qmri_t1 = glob.glob(os.path.join(qmri_directory, subject_name, 'ses*', 'anat', '*T1map.nii.gz'))
+    qmri_t2 = glob.glob(os.path.join(qmri_directory, subject_name, 'ses*', 'anat', '*T2map.nii.gz'))
+    qmri_pd = glob.glob(os.path.join(qmri_directory, subject_name, 'ses*', 'anat', '*PDmap.nii.gz')) 
+    qmri_t1w_path = glob.glob(os.path.join(qmri_directory, subject_name, 'ses*', 'anat', '*T1w.nii.gz'))
+    qmri_t2w_path = glob.glob(os.path.join(qmri_directory, subject_name, 'ses*', 'anat', '*T2w.nii.gz'))
 
-    if len(symri_t1w_path)*len(symri_t2w_path) != 1:
-        raise ValueError('Error: Expected to have exactly one T1w and T2w image, but found the following images {}.'.format(symri_t1w_path + symri_t2w_path))
+    if len(qmri_t1w_path)*len(qmri_t2w_path) != 1:
+        raise ValueError('Error: Expected to have exactly one T1w and T2w image, but found the following images {}.'.format(qmri_t1w_path + qmri_t2w_path))
 
-    if (len(symri_t1) + len(symri_t2) + len(symri_pd)) == 0:
-        raise ValueError('Error: Expected to have at least one T1map, T2map, or PDmap, but found the following images {}.'.format(symri_t1 + symri_t2 + symri_pd))
+    if (len(qmri_t1) + len(qmri_t2) + len(qmri_pd)) == 0:
+        raise ValueError('Error: Expected to have at least one T1map, T2map, or PDmap, but found the following images {}.'.format(qmri_t1 + qmri_t2 + qmri_pd))
     else:
-        symri_map_path_dict = {}
-        if len(symri_t1):
-            symri_map_path_dict['T1'] = symri_t1[0]
-        if len(symri_t2):
-            symri_map_path_dict['T2'] = symri_t2[0]
-        if len(symri_pd):
-            symri_map_path_dict['PD'] = symri_pd[0]
+        qmri_map_path_dict = {}
+        if len(qmri_t1):
+            qmri_map_path_dict['T1'] = qmri_t1[0]
+        if len(qmri_t2):
+            qmri_map_path_dict['T2'] = qmri_t2[0]
+        if len(qmri_pd):
+            qmri_map_path_dict['PD'] = qmri_pd[0]
         
     #########################################################################################################
     #########################################################################################################
@@ -313,18 +313,18 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     print('   Loading SyMRI maps')
     anatomical_reference = ants.image_read(anatomical_reference_path)
     segmentation = ants.image_read(bibsnet_seg_path)
-    symri_image_dict = {}
-    for temp_symri_map in symri_map_path_dict.keys():
-        symri_image_dict[temp_symri_map] = ants.image_read(symri_map_path_dict[temp_symri_map])
+    qmri_image_dict = {}
+    for temp_qmri_map in qmri_map_path_dict.keys():
+        qmri_image_dict[temp_qmri_map] = ants.image_read(qmri_map_path_dict[temp_qmri_map])
 
-    #Load the JSON metadata from one of original symri outputs.
+    #Load the JSON metadata from one of original qmri outputs.
     #Also remove SeriesDescription/ImageType fields that are specific to weighting.
-    map_json = next(iter(symri_map_path_dict.values())).replace('.nii.gz', '.json')
+    map_json = next(iter(qmri_map_path_dict.values())).replace('.nii.gz', '.json')
     with open(map_json, 'r') as f:
-        symri_json_dict = json.load(f)
+        qmri_json_dict = json.load(f)
     try:
-        del symri_json_dict["SeriesDescription"]
-        del symri_json_dict["ImageType"]
+        del qmri_json_dict["SeriesDescription"]
+        del qmri_json_dict["ImageType"]
     except:
         pass
 
@@ -354,32 +354,31 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     adjusted_bibsnet_mask = remove_extra_clusters_from_mask(bibsnet_mask)
     dilated_mask = ants.utils.morphology(adjusted_bibsnet_mask, 'dilate', 35)
     if anatomical_reference_modality == 'T1w':
-        symri_for_reg = ants.image_read(symri_t1w_path[0])
-        reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
+        qmri_for_reg = ants.image_read(qmri_t1w_path[0])
+        reg = ants.registration(anatomical_reference, qmri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
     elif anatomical_reference_modality == 'T2w':
-        symri_for_reg = ants.image_read(symri_t2w_path[0])
-        reg = ants.registration(anatomical_reference, symri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
+        qmri_for_reg = ants.image_read(qmri_t2w_path[0])
+        reg = ants.registration(anatomical_reference, qmri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
 
     #Apply the transform calculated above to the t1map, t2map, and pdmap images
     Map_Interpolation_Scheme = 'bSpline'
     maps_array_dict = {}
     registered_maps_paths = {}
     print('   Generating and saving registered SyMRI maps')
-    for temp_symri_map in symri_map_path_dict.keys():
-        temp_map = ants.image_read(symri_map_path_dict[temp_symri_map])
+    for temp_qmri_map in qmri_map_path_dict.keys():
+        temp_map = ants.image_read(qmri_map_path_dict[temp_qmri_map])
         temp_map_transformed = ants.apply_transforms(anatomical_reference, temp_map, reg['fwdtransforms'], interpolator = Map_Interpolation_Scheme)
-        maps_array_dict[temp_symri_map] = np.array(temp_map[:])
-        registered_temp_map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_{}map.nii'.format(subject_name, session_name, anatomical_reference_modality, temp_symri_map))
-        registered_maps_paths[temp_symri_map] = registered_temp_map_path
+        maps_array_dict[temp_qmri_map] = np.array(temp_map[:])
+        registered_temp_map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_{}map.nii'.format(subject_name, session_name, anatomical_reference_modality, temp_qmri_map))
         print('      Saving {}'.format(registered_temp_map_path))
         if os.path.exists(anat_out_dir) == False:
             os.makedirs(anat_out_dir)
         ants.image_write(temp_map_transformed, registered_temp_map_path)
         replace_file_with_gzipped_version(registered_temp_map_path)
-        registered_maps_paths[temp_symri_map] = registered_temp_map_path + '.gz'
+        registered_maps_paths[temp_qmri_map] = registered_temp_map_path + '.gz'
     #Also transform the segmentation image back to QALAS (i.e. T1map/T2map/PDmap) space
     Segmentation_Interpolation_Scheme = 'nearestNeighbor'
-    segmentation_reverse_transformed = ants.apply_transforms(symri_for_reg, segmentation, reg['fwdtransforms'], interpolator = Segmentation_Interpolation_Scheme, whichtoinvert = [True])
+    segmentation_reverse_transformed = ants.apply_transforms(qmri_for_reg, segmentation, reg['fwdtransforms'], interpolator = Segmentation_Interpolation_Scheme, whichtoinvert = [True])
     bibnset_file = bibsnet_seg_path.split('/')[-1]
     registered_segmentation_path = os.path.join(anat_out_dir, bibnset_file.replace(bibnset_file.split('_')[-3], 'space-QALAS')).replace('.gz', '')
     ants.image_write(segmentation_reverse_transformed, registered_segmentation_path)
@@ -395,10 +394,10 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     color_lut_df = load_color_lut_df()
     
     #Initialize a dictionary to store all the ROI values/names
-    measure_tpyes = ['Mean', 'Median', '1-percentile', '99-percentile', 'Std']
+    measure_types = ['Mean', 'Median', '1-percentile', '99-percentile', 'Std']
     roi_params_dict = {'Region_Name' : []}
     for temp_image_type in maps_array_dict.keys():
-        for temp_measure in measure_tpyes:
+        for temp_measure in measure_types:
             roi_params_dict[temp_image_type + '_' + temp_measure] = []
     
     #Find unique segmentation values########################################################
@@ -434,19 +433,19 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
 
     roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated from QALAS scans using the SyMRI pipeline. A registration was calculated from a high resolution anatomical image to the SyMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
                            'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
-                           'QALAS_Registered_Segmentation_Path' : ["bids:symri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
+                           'QALAS_Registered_Segmentation_Path' : ["bids:qmri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
                            'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
                            'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],
                            'Anatomical_Reference_Modality' : anatomical_reference_modality,
                            'Segmentation_Resampling_Scheme' : Segmentation_Interpolation_Scheme,
                            'Voxel_Correlation_Within_Mask' : mask_corr_coef,
-                           'Voxel_Correlation_Within_Mask_Description' : 'This is the correlation of voxel intensities between the anatomical reference image and the synthetic weighted image from symri following registration, using only voxels defined in the brain mask.'}
+                           'Voxel_Correlation_Within_Mask_Description' : 'This is the correlation of voxel intensities between the anatomical reference image and the synthetic weighted image from qmri following registration, using only voxels defined in the brain mask.'}
     
     roi_params_metadata['Original_SyMRI_Images'] = []
-    for temp_symri_map in symri_map_path_dict.keys():
-        roi_params_metadata['Original_SyMRI_Images'].append("bids:symri:{}".format(symri_map_path_dict[temp_symri_map].split(symri_directory)[-1]))
+    for temp_qmri_map in qmri_map_path_dict.keys():
+        roi_params_metadata['Original_SyMRI_Images'].append("bids:qmri:{}".format(qmri_map_path_dict[temp_qmri_map].split(qmri_directory)[-1]))
     roi_params_metadata.update(grab_anatomical_reference_metadata(anatomical_reference_path))
-    roi_params_metadata['Original_SyMRI_JSON_Metadata'] = symri_json_dict
+    roi_params_metadata['Original_SyMRI_JSON_Metadata'] = qmri_json_dict
 
     roi_params_metadata_json = json.dumps(roi_params_metadata, indent = 5)
     output_json_path = os.path.join(anat_out_dir, '{}_{}_desc-ParametricROIValues.json'.format(subject_name, session_name))
@@ -462,7 +461,7 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
             print('   Calculating Custom ROI Relaxometry Values for {}'.format(temp_grouping_path))
             custom_roi_params_dict = {'Region_Name' : []}
             for temp_image_type in maps_array_dict.keys():
-                for temp_measure in measure_tpyes:
+                for temp_measure in measure_types:
                     custom_roi_params_dict[temp_image_type + '_' + temp_measure] = []
 
 
@@ -505,19 +504,19 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
 
             custom_roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated from QALAS scans using the SyMRI pipeline. A registration was calculated from a high resolution anatomical image to the SyMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
                            'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
-                           'QALAS_Registered_Segmentation_Path' : ["bids:symri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
+                           'QALAS_Registered_Segmentation_Path' : ["bids:qmri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
                            'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
                            'Anatomical_Reference_Path' : ["bids:assembly_bids:{}".format(anatomical_reference_path.split(bids_directory)[-1])],
                            'Anatomical_Reference_Modality' : anatomical_reference_modality,
                            'Segmentation_Resampling_Scheme' : Segmentation_Interpolation_Scheme,
                            'Voxel_Correlation_Within_Mask' : mask_corr_coef,
-                           'Voxel_Correlation_Within_Mask_Description' : 'This is the correlation of voxel intensities between the anatomical reference image and the synthetic weighted image from symri following registration, using only voxels defined in the brain mask.'}
+                           'Voxel_Correlation_Within_Mask_Description' : 'This is the correlation of voxel intensities between the anatomical reference image and the synthetic weighted image from qmri following registration, using only voxels defined in the brain mask.'}
             custom_roi_params_metadata.update(grab_anatomical_reference_metadata(anatomical_reference_path))
-            custom_roi_params_metadata['Original_SyMRI_JSON_Metadata'] = symri_json_dict
+            custom_roi_params_metadata['Original_SyMRI_JSON_Metadata'] = qmri_json_dict
             custom_roi_params_metadata['Custom_ROI_Grouping'] = temp_groupings
             roi_params_metadata['Original_SyMRI_Images'] = []
-            for temp_symri_map in symri_map_path_dict.keys():
-                roi_params_metadata['Original_SyMRI_Images'].append("bids:symri:{}".format(symri_map_path_dict[temp_symri_map].split(symri_directory)[-1]))
+            for temp_qmri_map in qmri_map_path_dict.keys():
+                roi_params_metadata['Original_SyMRI_Images'].append("bids:qmri:{}".format(qmri_map_path_dict[temp_qmri_map].split(qmri_directory)[-1]))
             custom_roi_params_metadata_json = json.dumps(custom_roi_params_metadata, indent = 5)
             output_json_path = os.path.join(anat_out_dir, '{}_{}_desc-{}.json'.format(subject_name, session_name, temp_grouping_partial_name))
 
@@ -536,13 +535,13 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
                            'Anatomical_Reference_Modality' : anatomical_reference_modality,
                            'Resampling_Scheme' : Map_Interpolation_Scheme}
     roi_params_metadata['Original_SyMRI_Images'] = []
-    for temp_symri_map in symri_map_path_dict.keys():
-        roi_params_metadata['Original_SyMRI_Images'].append("bids:symri:{}".format(symri_map_path_dict[temp_symri_map].split(symri_directory)[-1]))
+    for temp_qmri_map in qmri_map_path_dict.keys():
+        roi_params_metadata['Original_SyMRI_Images'].append("bids:qmri:{}".format(qmri_map_path_dict[temp_qmri_map].split(qmri_directory)[-1]))
     resampled_images_metadata.update(grab_anatomical_reference_metadata(anatomical_reference_path))
-    resampled_images_metadata['Original_SyMRI_JSON_Metadata'] = symri_json_dict
+    resampled_images_metadata['Original_SyMRI_JSON_Metadata'] = qmri_json_dict
     resampled_images_metadata_json = json.dumps(resampled_images_metadata, indent = 5)
-    for temp_symri_map in symri_map_path_dict.keys():
-        output_json_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_{}map.json'.format(subject_name, session_name, anatomical_reference_modality, temp_symri_map))
+    for temp_qmri_map in qmri_map_path_dict.keys():
+        output_json_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_{}map.json'.format(subject_name, session_name, anatomical_reference_modality, temp_qmri_map))
         with open(output_json_path, 'w') as f:
             f.write(resampled_images_metadata_json) 
     
@@ -559,5 +558,11 @@ def calc_symri_stats(bids_directory, bibsnet_directory,
     
     make_outline_overlay_underlay_plot_ribbon(registered_path_for_underlay, bibsnet_seg_path, ap_buffer_size = 3, crop_buffer=20, num_total_images=9, dpi=400,
                                     underlay_cmap='Greys', linewidths=.1, output_path=alignment_figure_output, close_plot=True)
+    with open(alignment_figure_output.replace('.png', '.json'), 'w') as f:
+        alignment_figure_metadata = {'Workflow_Description' : 'The image generated in the accompanying figure is a visual representation of the registration quality of the segmentation image to the high resolution anatomical image. The underlay is a quantitative image that has been registered to the anatomical image, and the overlay is the segmentation image that has been registered to the T2map image. The figure is intended to be used as a quality control aid to assess the registration quality of the segmentation image to the anatomical image.',
+                                     'Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
+                                     'Underlay_Path' : ["bids:qmri_postproc:{}".format(registered_path_for_underlay.split(output_directory)[-1])],
+                                     }
+        json.dump(alignment_figure_metadata, f, indent = 5)
 
     return
