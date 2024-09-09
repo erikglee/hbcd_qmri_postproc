@@ -309,7 +309,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     sequence_name = ''
     for temp_keyvalue in example_img_name.split('/')[-1].split('_'):
         if sequence_name_source == temp_keyvalue.split('-')[0]:
-            sequence_name = temp_keyvalue
+            sequence_name = temp_keyvalue.split('-')[1]
             break
     if sequence_name == '':
         sequence_name = 'quant'
@@ -381,18 +381,18 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
         temp_map = ants.image_read(qmri_map_path_dict[temp_qmri_map])
         temp_map_transformed = ants.apply_transforms(anatomical_reference, temp_map, reg['fwdtransforms'], interpolator = Map_Interpolation_Scheme)
         maps_array_dict[temp_qmri_map] = np.array(temp_map[:])
-        registered_temp_map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_{}map.nii'.format(subject_name, session_name, anatomical_reference_modality, temp_qmri_map))
+        registered_temp_map_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-{}_{}map.nii'.format(subject_name, session_name, anatomical_reference_modality, sequence_name, temp_qmri_map))
         print('      Saving {}'.format(registered_temp_map_path))
         if os.path.exists(anat_out_dir) == False:
             os.makedirs(anat_out_dir)
         ants.image_write(temp_map_transformed, registered_temp_map_path)
         replace_file_with_gzipped_version(registered_temp_map_path)
         registered_maps_paths[temp_qmri_map] = registered_temp_map_path + '.gz'
-    #Also transform the segmentation image back to QALAS (i.e. T1map/T2map/PDmap) space
+    #Also transform the segmentation image back to qMRI (i.e. T1map/T2map/PDmap) space
     Segmentation_Interpolation_Scheme = 'nearestNeighbor'
     segmentation_reverse_transformed = ants.apply_transforms(qmri_for_reg, segmentation, reg['fwdtransforms'], interpolator = Segmentation_Interpolation_Scheme, whichtoinvert = [True])
     bibnset_file = bibsnet_seg_path.split('/')[-1]
-    registered_segmentation_path = os.path.join(anat_out_dir, bibnset_file.replace(bibnset_file.split('_')[-3], 'space-QALAS')).replace('.gz', '')
+    registered_segmentation_path = os.path.join(anat_out_dir, bibnset_file.replace(bibnset_file.split('_')[-3], 'space-{}'.format(sequence_name))).replace('.gz', '')
     ants.image_write(segmentation_reverse_transformed, registered_segmentation_path)
     registered_segmentation_path = replace_file_with_gzipped_version(registered_segmentation_path)
 
@@ -553,7 +553,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     resampled_images_metadata['Original_qMRI_JSON_Metadata'] = qmri_json_dict
     resampled_images_metadata_json = json.dumps(resampled_images_metadata, indent = 5)
     for temp_qmri_map in qmri_map_path_dict.keys():
-        output_json_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-QALAS_{}map.json'.format(subject_name, session_name, anatomical_reference_modality, temp_qmri_map))
+        output_json_path = os.path.join(anat_out_dir, '{}_{}_space-{}_desc-{}_{}map.json'.format(subject_name, session_name, anatomical_reference_modality, sequence_name, temp_qmri_map))
         with open(output_json_path, 'w') as f:
             f.write(resampled_images_metadata_json) 
     
