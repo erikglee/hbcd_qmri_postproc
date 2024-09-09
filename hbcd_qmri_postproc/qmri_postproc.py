@@ -443,7 +443,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     mask_corr_coef = np.corrcoef(reg['warpedmovout'][mask_inds], anatomical_reference_arr[mask_inds])[0,1]
 
 
-    roi_params_metadata = {'Workflow_Description' : 'The values generated in the accompanying csv file are summary statistics from PD/T1/T2 maps that were generated using the qMRI pipeline. A registration was calculated from a high resolution anatomical image to the qMRI maps, and the inverse of this registration was applied to register the segmentation image to the original maps. Summary statistics were then applied within the different regions of interest for the different maps.',
+    roi_params_metadata = {
                            'Original_Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
                            'qMRI_Registered_Segmentation_Path' : ["bids:qmri_postproc:{}".format(registered_segmentation_path.split(output_directory)[-1])],
                            'Mask_Path' : ["bids:bibsnet:{}".format(bibsnet_mask_path.split(bibsnet_directory)[-1])],
@@ -573,7 +573,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     make_outline_overlay_underlay_plot_ribbon(registered_path_for_underlay, bibsnet_seg_path, ap_buffer_size = 3, crop_buffer=20, num_total_images=9, dpi=400,
                                     underlay_cmap='Greys', linewidths=.1, output_path=alignment_figure_output, close_plot=True)
     with open(alignment_figure_output.replace('.png', '.json'), 'w') as f:
-        alignment_figure_metadata = {'Workflow_Description' : 'The image generated in the accompanying figure is a visual representation of the registration quality of the segmentation image to the high resolution anatomical image. The underlay is a quantitative image that has been registered to the anatomical image, and the overlay is the segmentation image that has been registered to the T2map image. The figure is intended to be used as a quality control aid to assess the registration quality of the segmentation image to the anatomical image.',
+        alignment_figure_metadata = {
                                      'Segmentation_Path' : ["bids:bibsnet:{}".format(bibsnet_seg_path.split(bibsnet_directory)[-1])],
                                      'Underlay_Path' : ["bids:qmri_postproc:{}".format(registered_path_for_underlay.split(output_directory)[-1])],
                                      }
