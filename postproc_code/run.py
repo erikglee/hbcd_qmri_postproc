@@ -96,7 +96,7 @@ def main():
                 continue
             print('Starting processing for: {}, {}'.format(temp_participant, temp_session))
             if os.path.exists(os.path.join(qmri_deriv_dir, temp_participant, temp_session)) == False:
-                print('   No SyMRI Relaxometry Maps directory found for the following, skipping processing: {}, {}'.format(temp_participant, temp_session))
+                print('   No qMRI Relaxometry Maps directory found for the following, skipping processing: {}, {}'.format(temp_participant, temp_session))
                 continue
             if os.path.exists(os.path.join(bibsnet_deriv_dir, temp_participant, temp_session)) == False:
                 print('   No BIBSNET/CABINET segmentations directory found for the following, skipping processing: {}, {}'.format(temp_participant, temp_session))
