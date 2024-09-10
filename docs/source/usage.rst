@@ -1,4 +1,4 @@
-.. HBCD_SYMRI_POSTPROC documentation master file, created by
+.. HBCD_qMRI_POSTPROC documentation master file, created by
    sphinx-quickstart on Wed Jun  5 10:48:12 2024.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
@@ -7,7 +7,7 @@
 Usage
 =====
 
-There are three primary inputs to the HBCD_SYMRI_POSTPROC tool.
+There are three primary inputs to the hbcd_qmri_postproc tool.
 In each case, the input is provided as a "study-wide" folder, such
 that the tool can be run on multiple subjects at once. These three
 directories include the BIDS directory, the
@@ -35,14 +35,14 @@ singularity image: ::
       container_path=/path/to/container.sif
       bids_dir=/path/to/bids
       output_dir=/path/to/output
-      symri_dir=/path/to/symri
+      qmri_dir=/path/to/qmri
       bibsnet_dir=/path/to/bibsnet
 
       singularity run -B $bids_dir:/bids \
             -B $output_dir:/output \
-            -B $symri_dir:/symri \
+            -B $qmri_dir:/qmri \
             -B $bibsnet_dir:/bibsnet \
-            $container_path /data /output participant /symri /bibsnet
+            $container_path /data /output participant /qmri /bibsnet
 
 To see more specific information about how this tool expects
 the inputs to be formatted (i.e. file naming conventions), 
@@ -52,8 +52,8 @@ see the inputs formatting page.
 Command-Line Arguments
 ----------------------
 .. argparse::
-   :ref: postproc_code.my_parser.build_parser
-   :prog: hbcd_symri_postproc
+   :ref: hbcd_qmri_postproc.my_parser.build_parser
+   :prog: hbcd_qmri_postproc
    :nodefault:
    :nodefaultconst:
 
