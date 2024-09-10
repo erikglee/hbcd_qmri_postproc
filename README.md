@@ -8,4 +8,4 @@ extracting summary statistics from those regions.
 
 Documentation can be seen at the ReadTheDocs page:
 
-hbcd-qmri-postproc.readthedocs.i
+[hbcd-qmri-postproc.readthedocs.io](https://hbcd-qmri-postproc.readthedocs.io/)
