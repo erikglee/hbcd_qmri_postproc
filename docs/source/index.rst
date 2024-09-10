@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to HBCD_SYMRI_POSTPROC's documentation!
+Welcome to hbcd_qmri_postproc's documentation!
 ===============================================
 
 This tool is used in the Healthy Brain and Child Development (HBCD) study
