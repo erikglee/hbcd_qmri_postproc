@@ -6,7 +6,7 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'HBCD_SYMRI_POSTPROC'
+project = 'hbcd_qmri_postproc'
 copyright = '2024, HBCD'
 author = 'HBCD'
 release = '1.0.0'

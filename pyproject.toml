@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "HBCD_SYMRI_POSTPROC"
+name = "hbcd_qmri_postproc"
 version = "1.0.0"
 description = "TBD"
 readme = "README.md"
