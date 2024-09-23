@@ -14,18 +14,19 @@ for each session that will be processed. The T1w and/or T2w image
 should already be registered to the segmentation(s) found in the
 segmentations directory. If both T1w/T2w images and segmentations
 are present, the pipeline will currently (as of 6/5/24) give priority
-to registering the relaxometry images to the T2w images by default.
+to registering the relaxometry images to the T2w images in the BIDS directory
+by default.
 
 qMRI/relaxometry directory
 ---------------------------
 
-The Quantitative MRI directory should contain derived relaxometry maps, along
+The quantitative MRI directory should contain derived relaxometry maps, along
 with a synthetic T1w and T2w image. At minimum, there should be at least one
-T1map, T2map, or PDmap in the quantitative MRI directory. It is assumed that there is
+T1map, T2map, or PDmap in a subject (or session) quantitative MRI directory. It is assumed that there is
 at most one of each image type, and also that all images were derived from the same
-acquisition. Because each image type is assumed to be derived from the same acquisition,
-it assumes all images within this directory are registered to one another. The expected
-names of the files (with \"\*\" denoting wildcard, and [] denoting optional elements of file path/names) are as follows: ::
+acquisition. Following this assumption, all images within this directory should be
+registered to one another. The expected names of the files (with \"\*\"
+denoting wildcard, and [] denoting optional elements of file path/names) are as follows: ::
 
    /qmri_dir/sub-<label>[/ses-<label>]/anat/sub-<label>[_ses-<label>]*T1map.nii.gz
    /qmri_dir/sub-<label>[/ses-<label>]/anat/sub-<label>[_ses-<label>]_ses-<label>*T2map.nii.gz
@@ -42,7 +43,7 @@ associated metadata.
 Beyond the expectation that all images in a given session folder are registered to one another,
 it is also assumed that all images have the same dimensions and voxel resolutions. 
 
-bibsnet_deriv_dir (i.e. segmentation directory)
+BIBSNET Directory (i.e. segmentation directory)
 -----------------------------------------------
 
 The segmentations found under this directory should be of the
@@ -63,7 +64,6 @@ loaded, then the segmentation will be loaded, and following a registration proce
 value within the segmentation will be mapped to the corresponding label in the FreeSurferColorLUT.
 If there is a voxel label that is not found in the FreeSurferColorLUT this will result in an error.
 
-
 region_groupings_json
 ---------------------
 
@@ -80,6 +80,9 @@ An example formatting is as follows: ::
        "Cerebral-Cortex": ["Left-Cerebral-White-Matter", "Right-Cerebral-White-Matter"],
        "Cerebral-White-Matter": ["Left-Cerebral-Cortex", "Right-Cerebral-Cortex"]
    }
+
+If there exists a given region grouping where no voxels are found within a segmentation
+image, the given grouping will have statistics with NaN values.
 
 
 .. toctree::

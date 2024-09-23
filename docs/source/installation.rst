@@ -30,8 +30,8 @@ the basic command to run the container is as follows: ::
          -B $bibsnet_dir:/bibsnet \
          $container_path /data /output participant /qmri /bibsnet
 
-Where "singularity run" is followed by specific commands for singularity.
+Where "singularity run" is first followed by specific commands for singularity.
 In this case it is a series of "bind" commands that will give singularity
-access to the necessary directories. This is followed by the path to the
-container and then the arguments for the primary script to be ran by the
-container.
+access to the necessary directories needed for processing. This is followed
+by the path to the container and then the arguments for the primary script
+to be ran by the container.
