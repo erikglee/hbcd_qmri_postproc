@@ -8,6 +8,7 @@ import pandas as pd
 import nibabel as nib
 import json
 from scipy import ndimage
+import SimpleITK as sitk
 
 def replace_file_with_gzipped_version(file_path):
     '''Replace a file with a gzipped version of itself
@@ -371,7 +372,7 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
         qmri_for_reg = ants.image_read(qmri_t1w_path[0])
     elif anatomical_reference_modality == 'T2w':
         qmri_for_reg = ants.image_read(qmri_t2w_path[0])
-    reg = ants.registration(anatomical_reference, qmri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask, aff_metric=registration_metric, type_of_transform=registration_metric)
+    reg = ants.registration(fixed=anatomical_reference, moving=qmri_for_reg, mask=dilated_mask, type_of_transform=registration_type, aff_metric=registration_metric)
 
     #Apply the transform calculated above to the t1map, t2map, and pdmap images
     Map_Interpolation_Scheme = 'bSpline'
@@ -389,6 +390,12 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
         ants.image_write(temp_map_transformed, registered_temp_map_path)
         replace_file_with_gzipped_version(registered_temp_map_path)
         registered_maps_paths[temp_qmri_map] = registered_temp_map_path + '.gz'
+        
+        #save the registration as well
+        transform = sitk.ReadTransform(reg['fwdtransforms'][0])
+        transform_out_path = os.path.join(anat_out_dir, '{}_{}_from-QALAS-to-{}_mode-image_xfm.txt'.format(subject_name, session_name, anatomical_reference_modality))
+        sitk.WriteTransform(transform, transform_out_path)
+
     #Also transform the segmentation image back to qMRI (i.e. T1map/T2map/PDmap) space
     Segmentation_Interpolation_Scheme = 'nearestNeighbor'
     segmentation_reverse_transformed = ants.apply_transforms(qmri_for_reg, segmentation, reg['fwdtransforms'], interpolator = Segmentation_Interpolation_Scheme, whichtoinvert = [True])

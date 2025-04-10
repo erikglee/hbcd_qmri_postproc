@@ -42,6 +42,7 @@ RUN python3 -m pip install numpy==1.22.4 #previously was 1.20.3
 RUN python3 -m pip install scipy==1.8.0
 RUN python3 -m pip install nibabel==3.2.2
 RUN python3 -m pip install matplotlib==3.5.1
+RUN python3 -m pip install SimpleITK==2.4.1
 
 
 #Grab code + colorlut
