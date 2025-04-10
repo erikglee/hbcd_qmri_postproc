@@ -105,7 +105,9 @@ def main():
                                         qmri_deriv_dir, output_dir,
                                         temp_participant, temp_session,
                                         custom_roi_groupings = region_groupings_json,
-                                        sequence_name_source = args.sequence_name_source)
+                                        sequence_name_source = args.sequence_name_source,
+                                        registration_metric = args.ants_reg_metric,
+                                        registration_type = args.ants_reg_type)
             print('Finished with: {}, {}'.format(temp_participant, temp_session))
 
 if __name__ == "__main__":

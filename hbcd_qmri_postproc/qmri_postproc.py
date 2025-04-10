@@ -214,7 +214,9 @@ def make_outline_overlay_underlay_plot_ribbon(path_to_underlay, path_to_overlay,
 def calc_qmri_stats(bids_directory, bibsnet_directory,
                      qmri_directory, output_directory,
                      subject_name, session_name, custom_roi_groupings = None,
-                     sequence_name_source = 'acq'):
+                     sequence_name_source = 'acq',
+                     registration_metric = 'mattes',
+                     registration_type = 'Rigid'):
     '''Function to generate items of interest based on quantitative MRI maps
     
     
@@ -367,10 +369,9 @@ def calc_qmri_stats(bids_directory, bibsnet_directory,
     dilated_mask = ants.utils.morphology(adjusted_bibsnet_mask, 'dilate', 35)
     if anatomical_reference_modality == 'T1w':
         qmri_for_reg = ants.image_read(qmri_t1w_path[0])
-        reg = ants.registration(anatomical_reference, qmri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
     elif anatomical_reference_modality == 'T2w':
         qmri_for_reg = ants.image_read(qmri_t2w_path[0])
-        reg = ants.registration(anatomical_reference, qmri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask)
+    reg = ants.registration(anatomical_reference, qmri_for_reg, type_of_transform='Rigid', initial_transform=None, mask=dilated_mask, aff_metric=registration_metric, type_of_transform=registration_metric)
 
     #Apply the transform calculated above to the t1map, t2map, and pdmap images
     Map_Interpolation_Scheme = 'bSpline'

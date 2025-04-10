@@ -18,5 +18,7 @@ def build_parser():
     parser.add_argument('--skip_existing', help='OPTIONAL: if flag is activated, the tool will skip processing for a session if the session folder where outputs are to be stored already exists.', action='store_true')
     parser.add_argument('--region_groupings_json', nargs='+', help='OPTIONAL: the path to a json file containing region groupings for which to calculate statistics. Multiple files can be provided, resulting in multiple output csv files.', type=str)
     parser.add_argument('--sequence_name_source', help='OPTIONAL: the the key for the key/value pair to try and grab sequence name from. For example if the qMRI file is named sub-1_acq-QALAS.nii.gz, this should be "acq". If the sequence is found, it will be represented as "quant" in the output files.', type=str, default = 'acq')
+    parser.add_argument('--ants_reg_metric', '--ants-reg-metric', help="The registration metric used in ANTS, options are mattes (default), GC, meansquares", type=str, choices=['mattes', 'GC', 'meansquares'], default='mattes')
+    parser.add_argument('--ants_reg_type', '--ants-reg-type', help="The registration type used in ANTS, options are Rigid (default), Similarity, Affine", type=str, choices=['Rigid', 'Similarity', 'Affine'], default='Rigid')
 
     return parser
